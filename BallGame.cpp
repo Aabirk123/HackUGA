@@ -38,16 +38,12 @@ int main(int argc, char *argv[])
     SDL_Event e;
 
     //While application is running
-<<<<<<< HEAD
-    SDL_Rect dest = {200, -300};
-=======
     SDL_Rect dest = {200, 300};
     SDL_Rect C1 = {};
     SDL_Rect C2 = {};
     SDL_Rect C3 = {};
     SDL_Rect C4 = {};
     
->>>>>>> 87088fcec56a4bfb2803ecdda7cab3113f8f3479
     int xVelo = 0;
     //int xtime = 0;
     int lvlDifficulty = 2;
@@ -60,11 +56,6 @@ int main(int argc, char *argv[])
 
     while( !quit )
     {
-<<<<<<< HEAD
-      
-      //Handle events on queue
-      while( SDL_PollEvent( &e ) != 0 )
-=======
         //Timer for dropping fall
         /*int timePassed = SDL_GetTicks();
         if(timePassed % 600 == 0)
@@ -73,47 +64,29 @@ int main(int argc, char *argv[])
         }*/
         //Handle events on queue
         while( SDL_PollEvent( &e ) != 0 )
->>>>>>> 87088fcec56a4bfb2803ecdda7cab3113f8f3479
         {
-	  //User requests quit
-	  
-	  if( e.type == SDL_QUIT )
+            //User requests quit
+            if( e.type == SDL_QUIT )
             {
-	      quit = true;
+                quit = true;
             } //User presses a key
-	  else if( e.type == SDL_KEYDOWN )
+            else if( e.type == SDL_KEYDOWN )
             {
-	      switch( e.key.keysym.sym )
+                switch( e.key.keysym.sym )
                 {
-		case SDLK_ESCAPE:
-		  quit = true;
-		  break;
-		  
-		case SDLK_LEFT:
-		  xVelo = -1;
-		  break;
-		  
-		case SDLK_RIGHT:
-		  xVelo = 1;
-		  break;
+                    case SDLK_ESCAPE:
+                        quit = true;
+                    break;
+
+                    case SDLK_LEFT:
+                        xVelo = -1;
+                    break;
+
+                    case SDLK_RIGHT:
+                        xVelo = 1;
+                    break;
                 }
             } else if( e.type == SDL_KEYUP) {
-<<<<<<< HEAD
-	    switch( e.key.keysym.sym )
-	      {
-	      case SDLK_LEFT:
-		xVelo = 0;
-		break;
-		      
-	      case SDLK_RIGHT:
-		xVelo = 0;
-		break;
-	      }
-	  }
-	  
-	}
-      
-=======
                 switch( e.key.keysym.sym )
                 {
                     case SDLK_LEFT:
@@ -133,20 +106,19 @@ int main(int argc, char *argv[])
             testBall[i]->Update(1);
             testBall[i]->Paste(ScreenSurface);
         }
->>>>>>> 87088fcec56a4bfb2803ecdda7cab3113f8f3479
         // Move player image's position
         dest.x += xVelo;
         //Apply the image
         SDL_BlitSurface( gXOut, NULL, ScreenSurface, &dest );
-	
+    
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
     }
-    
-    //Deallocate surface
+
+	//Deallocate surface
 	SDL_FreeSurface( gXOut );
 	SDL_DestroyWindow( Window );
-	
-	return 0;
+
+    return 0;
 }
