@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                            SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+                            SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
 
     // Import image
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     SDL_Event e;
 
     //While application is running
-    SDL_Rect dest = {200, 500};
+    SDL_Rect dest = {200, 300};
     int xVelo = 0;
     while( !quit )
     {
@@ -60,13 +60,16 @@ int main(int argc, char *argv[])
                     break;
                 }
             } else if( e.type == SDL_KEYUP) {
-                case SDLK_LEFT:
-                    xVelo = 0;
-                break;
+                switch( e.key.keysym.sym )
+                {
+                    case SDLK_LEFT:
+                        xVelo = 0;
+                    break;
 
-                case SDLK_RIGHT:
-                    xVelo = 0;
-                break;
+                    case SDLK_RIGHT:
+                        xVelo = 0;
+                    break;
+                }
             }
         }
 
