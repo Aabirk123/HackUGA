@@ -9,6 +9,7 @@
 #include "ball.h"
 #include "crater.h"
 #include "powerup.h"
+#include "explosion.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 600;
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
-    SDL_Surface* exlposoion= SDL_LoadBMP("explosion.bmp");
+    SDL_Surface* explosion= SDL_LoadBMP("explosion.bmp");
 
 
 
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
+    int collisions = 0;
     int timeSlow =2;
     int xVelo = 0;
     int lvlDifficulty = 5;
@@ -56,7 +58,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower;
     for(int i = 0; i <= lvlDifficulty; i++)
     {
-        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
     }
 
     while( !quit )
@@ -140,8 +142,8 @@ int main(int argc, char *argv[])
                     for(int i = 0; i<=lvlDifficulty; i++)
                     {
                         //makes new ball set erasing the old one
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
-                        score+=10*i;
+                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                        score+=10*lvlDifficulty;
                         std::string scoreStr = "Score: " + std::to_string(score);
                         scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                     }
@@ -173,16 +175,18 @@ int main(int argc, char *argv[])
                 int ballColor = testBall[i]->color;
                 if(ballColor < 4) {
                     if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
+                        Explosion boom(testBall[i]->x, testBall[i]->y);
                         // Make new ball
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
                         score+=10;
                         std::string scoreStr = "Score: " + std::to_string(score);
                         scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                     }
                 } else {
                     for(int j=0; j<4; j++) {
-                        if(testBall[i]->color == 5 && testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                        if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                            Explosion boom(testBall[i]->x, testBall[i]->y);
+                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
                             score+=10;
                         }
                     }
@@ -191,7 +195,7 @@ int main(int argc, char *argv[])
                 // Offscreen
                 if(testBall[i]->touchingBox(-100, SCREEN_HEIGHT, 1000, 10)) {
                     // Make new ball
-                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
                 }
             }
         } else {

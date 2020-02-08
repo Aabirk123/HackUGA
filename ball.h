@@ -10,9 +10,9 @@ public:
     int y;
     int color;
     //Parametrized Constructor
-    Ball(int x, int color) {
+    Ball(int x, int y, int color) {
         this->x = x;
-        this->y = -10;
+        this->y = y;
         this->color = color-1;
         std::string text = "ball" + std::to_string(color) + ".bmp";
         sprite = SDL_LoadBMP( text.c_str() );
