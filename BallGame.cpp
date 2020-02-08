@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             testPower->update(1);
             testPower->Paste(ScreenSurface);
 
-            bool collided;
+            bool collided = false;
             for(int i = 0; i< 4; i++ )
             {
                 if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
 
             if(collided)
             {
-                if(testPower-> whichOne == 1)
+                if(testPower-> whichOne == 0)
                 {
                     timeSlow+=5;
                     currentFrame = 1;
                 }
-                else if(testPower-> whichOne == 2)
+                else if(testPower-> whichOne == 1)
                 {
                     for(int i = 0; i<=lvlDifficulty; i++)
                     {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                     }
 
                 }
-                else if(testPower-> whichOne == 3)
+                else if(testPower-> whichOne == 2)
                 {
                     for (int i = 0; i < lvlDifficulty; i++)
                     {
