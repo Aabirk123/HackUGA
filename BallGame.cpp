@@ -1,11 +1,11 @@
 #include<SDL2/SDL.h>
 #include<stdlib.h>
 #include<memory>
-
 #include<cstdio>
 #include<ctime>
 
 #include "ball.h"
+#include "crater.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 600;
@@ -30,17 +30,20 @@ int main(int argc, char *argv[])
     SDL_Surface* crator3 = SDL_LoadBMP( "crater3.bmp" );
     SDL_Surface* crator4 = SDL_LoadBMP( "crater4.bmp" );
 
+    SDL_Surface* powerUp1 = SDL_LoadBMP("powerup");
+    SDL_Surface* powerUp2 = SDL_LoadBMP("powerup2");
+    SDL_Surface* powerUp3 = SDL_LoadBMP("powerup3");
+
     //Main loop flag
     bool quit = false;
 
     //Event handler
     SDL_Event e;
 
-    //While application is running
-    SDL_Rect C1[4] = {{60,440},
-                      {200, 440},
-                      {340, 440},
-                      {480, 440}};
+    Crater* crater[4];
+    for(int i=0; i<4; i++) {
+        crater[i] = new Crater(64+i*128, 420, i+1);
+    }
     
     int xVelo = 0;
     //int xtime = 0;
@@ -83,25 +86,35 @@ int main(int argc, char *argv[])
                 switch( e.key.keysym.sym )
                 {
                     case SDLK_LEFT:
-                        xVelo = 0;
+                        if(xVelo < 0)
+                            xVelo = 0;
                     break;
 
                     case SDLK_RIGHT:
-                        xVelo = 0;
+                        if(xVelo > 0)
+                            xVelo = 0;
                     break;
                 }
             }
         }
 
         SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
+        // Moving planets
+        for(int i = 0; i < 4; i++)
+        {
+            crater[i]->Update(xVelo, 0);
+            crater[i]->CheckOffscreen(SCREEN_WIDTH);
+        }
+
+        // Moving balls
         frameCount++;
         if(frameCount % 2 == 0) {
             for(int i = 0; i <= lvlDifficulty; i++)
             {
-                testBall[i]->Update(xVelo, 1);
+                testBall[i]->Update(0, 1);
                 testBall[i]->Paste(ScreenSurface);
                 int ballColor = testBall[i]->color;
-                if(testBall[i]->touchingBox(C1[ballColor].x, C1[ballColor].y, 100, 100)) {
+                if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)) {
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                     score+=10;
@@ -122,10 +135,9 @@ int main(int argc, char *argv[])
         // Move player image's position
 
         //Apply the image
-        SDL_BlitSurface(crator1, NULL, ScreenSurface, &C1[0]);
-        SDL_BlitSurface(crator2, NULL, ScreenSurface, &C1[1]);
-        SDL_BlitSurface(crator3, NULL, ScreenSurface, &C1[2]);
-        SDL_BlitSurface(crator4, NULL, ScreenSurface, &C1[3]);
+        for(int i=0; i<4; i++) {
+            crater[i]->Paste(ScreenSurface);
+        }
         
         //Update the surface
         SDL_UpdateWindowSurface( Window );
@@ -133,6 +145,9 @@ int main(int argc, char *argv[])
     }
 
 	//Deallocate surface
+    for(int i=0; i<4; i++) {
+        delete(crater[i]);
+    }
 	SDL_DestroyWindow( Window );
 
     return 0;
