@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
             testPower->update(1);
             testPower->Paste(ScreenSurface);
 
-            bool collided;
+            bool collided = false;
             for(int i = 0; i< 4; i++ )
             {
                 if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
