@@ -8,12 +8,19 @@ protected:
     int y;
     SDL_Surface* sprite;
 public:
+    int color;
     //Parametrized Constructor
     Ball(int x, int color) {
         this->x = x;
         this->y = -10;
+        this->color = color-1;
         std::string text = "ball" + std::to_string(color) + ".bmp";
         sprite = SDL_LoadBMP( text.c_str() );
+    }
+
+    //Parametrized Constructor
+    ~Ball() {
+	    //SDL_FreeSurface( sprite );
     }
 
     void Update(int speed) {
