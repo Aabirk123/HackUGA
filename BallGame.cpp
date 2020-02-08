@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     //SDL_Surface* Earth = SDL_LoadBMP("earth.bmp")
 
 
-
     //Main loop flag
     bool quit = false;
 

@@ -16,9 +16,10 @@ public:
         this->color = color-1;
         std::string text = "ball" + std::to_string(color) + ".bmp";
         sprite = SDL_LoadBMP( text.c_str() );
+	
     }
 
-    changeColor(int newColor) {
+    void changeColor(int newColor) {
         this->color = newColor-1;
         std::string text = "ball" + std::to_string(newColor) + ".bmp";
         sprite = SDL_LoadBMP( text.c_str() );
