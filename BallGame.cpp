@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     
     int xVelo = 0;
     int lvlDifficulty = 5;
+    int numPowerups = 0;
     int score = 0;
     SDL_Color color = {255, 255, 255};
     //SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
@@ -60,6 +61,7 @@ int main(int argc, char *argv[])
     for(int j = 0; j <= 3; j++)
     {
         testPower[j] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
+        numPowerups++;
     }
     while( !quit )
     {
@@ -111,13 +113,20 @@ int main(int argc, char *argv[])
         }
         //Power Ups
         /*
-            int l = 0;
             int timer = SDL_geticks();
             if(timer % 10000 == 0)
             {
-                testPower[l]->Paste(ScreenSurface)
+                // Make a new powerup
+                testPower[numPowerups] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%3)+1);
+                numPowerups++;
+
+                //testPower[l]->Paste(ScreenSurface);
             }
-            if(l>)
+            if(numPowerups>0)
+            {
+                
+
+            }
         
     */
         // Moving balls
