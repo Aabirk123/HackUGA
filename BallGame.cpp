@@ -1,6 +1,7 @@
 #include<SDL2/SDL.h>
-//#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include<stdlib.h>
+#include<iostream>
 #include<memory>
 #include<cstdio>
 #include<ctime>
@@ -17,14 +18,14 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     // Start SDL
     SDL_Init(SDL_INIT_EVERYTHING);
-    //TTF_Init();
+    TTF_Init();
     // Setup the screen
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
                             SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
-    //TTF_Font * font = TTF_OpenFont("Arial.ttf", 25);
+    TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
@@ -183,6 +184,8 @@ int main(int argc, char *argv[])
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                     score+=10;
+		    std::string scoreStr = "Score: " + std::to_string(score);
+		    scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                 }
                 for(int j=0; j<4; j++) {
                     if(testBall[i]->color = 5 && testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
@@ -220,9 +223,9 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         delete(crater[i]);
     }
-	SDL_DestroyWindow( Window );
-    //TTF_CloseFont(font);
-    //TTF_Quit();
+    SDL_DestroyWindow( Window );
+    TTF_CloseFont(font);
+    TTF_Quit();
     SDL_Quit();
 
     return 0;
