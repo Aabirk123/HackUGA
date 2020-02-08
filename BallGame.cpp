@@ -1,13 +1,18 @@
 #include<SDL2/SDL.h>
+#include<stdlib.h>
+#include<memory>
+
 #include<cstdio>
+#include<ctime>
+
 #include "ball.h"
 
 const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_HEIGHT = 600;
 
 int main(int argc, char *argv[])
 {
-    //srand(time(NULL));
+    srand(time(NULL));
     // Start SDL
     SDL_Init(SDL_INIT_EVERYTHING);
     // Setup the screen
@@ -18,18 +23,12 @@ int main(int argc, char *argv[])
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
 
     // Import image
-    SDL_Surface* gXOut = SDL_LoadBMP( "byte.bmp" );
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
 
-    SDL_Surface* crator = SDL_LoadBMP( "crater1.bmp" );
+    SDL_Surface* crator1 = SDL_LoadBMP( "crater1.bmp" );
     SDL_Surface* crator2 = SDL_LoadBMP( "crater2.bmp" );
     SDL_Surface* crator3 = SDL_LoadBMP( "crater3.bmp" );
     SDL_Surface* crator4 = SDL_LoadBMP( "crater4.bmp" );
-	if( gXOut == NULL )
-	{
-		printf( "Unable to load image %s! SDL Error: %s\n", "03_event_driven_programming/x.bmp", SDL_GetError() );
-        return 0;
-	}
 
     //Main loop flag
     bool quit = false;
@@ -38,31 +37,25 @@ int main(int argc, char *argv[])
     SDL_Event e;
 
     //While application is running
-    SDL_Rect dest = {200, 300};
-    SDL_Rect C1 = {};
-    SDL_Rect C2 = {};
-    SDL_Rect C3 = {};
-    SDL_Rect C4 = {};
+    SDL_Rect C1[4] = {{60,440},
+                      {200, 440},
+                      {340, 440},
+                      {480, 440}};
     
     int xVelo = 0;
     //int xtime = 0;
-    int lvlDifficulty = 2;
+    int lvlDifficulty = 5;
+    int score = 0;
+    int frameCount = 0;
 
-    Ball* testBall[100];
+    std::unique_ptr<Ball> testBall[100];
     for(int i = 0; i <= lvlDifficulty; i++)
     {
-        testBall[i] = new Ball(200+i*50, i);
+        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
     }
 
     while( !quit )
     {
-        //Timer for dropping fall
-        /*int timePassed = SDL_GetTicks();
-        if(timePassed % 600 == 0)
-        {
-            xtime = -1;
-        }*/
-        //Handle events on queue
         while( SDL_PollEvent( &e ) != 0 )
         {
             //User requests quit
@@ -79,11 +72,11 @@ int main(int argc, char *argv[])
                     break;
 
                     case SDLK_LEFT:
-                        xVelo = -1;
+                        xVelo = -2;
                     break;
 
                     case SDLK_RIGHT:
-                        xVelo = 1;
+                        xVelo = 2;
                     break;
                 }
             } else if( e.type == SDL_KEYUP) {
@@ -101,23 +94,45 @@ int main(int argc, char *argv[])
         }
 
         SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
-        for(int i = 0; i <= lvlDifficulty; i++)
-        {
-            testBall[i]->Update(1);
-            testBall[i]->Paste(ScreenSurface);
+        frameCount++;
+        if(frameCount % 2 == 0) {
+            for(int i = 0; i <= lvlDifficulty; i++)
+            {
+                testBall[i]->Update(xVelo, 1);
+                testBall[i]->Paste(ScreenSurface);
+                int ballColor = testBall[i]->color;
+                if(testBall[i]->touchingBox(C1[ballColor].x, C1[ballColor].y, 100, 100)) {
+                    // Make new ball
+                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                    score+=10;
+                }
+
+                // Offscreen
+                if(testBall[i]->touchingBox(-100, SCREEN_HEIGHT, 1000, 10)) {
+                    // Make new ball
+                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                }
+            }
+        } else {
+            for(int i = 0; i <= lvlDifficulty; i++)
+            {
+                testBall[i]->Paste(ScreenSurface);
+            }
         }
         // Move player image's position
-        dest.x += xVelo;
+
         //Apply the image
-        SDL_BlitSurface( gXOut, NULL, ScreenSurface, &dest );
-    
+        SDL_BlitSurface(crator1, NULL, ScreenSurface, &C1[0]);
+        SDL_BlitSurface(crator2, NULL, ScreenSurface, &C1[1]);
+        SDL_BlitSurface(crator3, NULL, ScreenSurface, &C1[2]);
+        SDL_BlitSurface(crator4, NULL, ScreenSurface, &C1[3]);
+        
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
     }
 
 	//Deallocate surface
-	SDL_FreeSurface( gXOut );
 	SDL_DestroyWindow( Window );
 
     return 0;
