@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(64+i*128, 420, i+1);
+        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
     
     int xVelo = 0;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower[100];
     for(int i = 0; i <= lvlDifficulty; i++)
     {
-        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+        testBall[i] = std::make_unique<Ball>(100+(rand()%45)*10, (rand()%4)+1);
     }
     for(int j = 0; j <= 3; j++)
     {
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
             crater[i]->Paste(ScreenSurface);
         }
         
-        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+        //SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         delete(crater[i]);
     }
-	SDL_DestroyWindow( Window );
+    SDL_DestroyWindow( Window );
     //TTF_CloseFont(font);
     //TTF_Quit();
     SDL_Quit();

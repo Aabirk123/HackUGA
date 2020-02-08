@@ -4,10 +4,10 @@
 class Ball
 {
 protected:
-    int x;
-    int y;
     SDL_Surface* sprite;
 public:
+    int x;
+    int y;
     int color;
     //Parametrized Constructor
     Ball(int x, int color) {
