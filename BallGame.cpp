@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower[100];
     for(int i = 0; i <= lvlDifficulty; i++)
     {
-        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+        testBall[i] = std::make_unique<Ball>(100+(rand()%45)*10, (rand()%4)+1);
     }
     for(int j = 0; j <= 3; j++)
     {
