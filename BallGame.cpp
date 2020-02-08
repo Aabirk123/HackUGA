@@ -1,6 +1,7 @@
 #include<SDL2/SDL.h>
-//#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_ttf.h>
 #include<stdlib.h>
+#include<iostream>
 #include<memory>
 #include<cstdio>
 #include<ctime>
@@ -17,18 +18,17 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     // Start SDL
     SDL_Init(SDL_INIT_EVERYTHING);
-    //TTF_Init();
+    TTF_Init();
     // Setup the screen
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
                             SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
-    //TTF_Font * font = TTF_OpenFont("Arial.ttf", 25);
+    TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
-
     SDL_Surface* powerUp1 = SDL_LoadBMP("powerup");
     SDL_Surface* powerUp2 = SDL_LoadBMP("powerup2");
     SDL_Surface* powerUp3 = SDL_LoadBMP("powerup3");
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     int numPowerups = 0;
     int score = 0;
     SDL_Color color = {255, 255, 255};
-    //SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
+    SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
     int frameCount = 0;
 
     std::unique_ptr<Ball> testBall[100];
@@ -141,6 +141,8 @@ int main(int argc, char *argv[])
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                     score+=10;
+		    std::string scoreStr = "Score: " + std::to_string(score);
+		    scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                 }
 
                 // Offscreen
@@ -162,7 +164,7 @@ int main(int argc, char *argv[])
             crater[i]->Paste(ScreenSurface);
         }
         
-        //SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
@@ -173,8 +175,8 @@ int main(int argc, char *argv[])
         delete(crater[i]);
     }
     SDL_DestroyWindow( Window );
-    //TTF_CloseFont(font);
-    //TTF_Quit();
+    TTF_CloseFont(font);
+    TTF_Quit();
     SDL_Quit();
 
     return 0;
