@@ -46,11 +46,10 @@ int main(int argc, char *argv[])
     int timeSlow =2;
     int xVelo = 0;
     int lvlDifficulty = 5;
-    int numPowerups = 0;
     int score = 0;
     SDL_Color color = {255, 255, 255};
     SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
-    int frameCount = 0;
+    int frameCount = 0; int powerCount;
     int currentFrame = 0;
 
     std::unique_ptr<Ball> testBall[100];
@@ -110,8 +109,8 @@ int main(int argc, char *argv[])
         }
 
         //Power Ups
-        int timer = SDL_GetTicks();
-        if(timer % 1000 == 0)
+        powerCount++;
+        if(powerCount % 3000 == 0)
         {
             // Make a new powerup
             testPower = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
@@ -146,13 +145,12 @@ int main(int argc, char *argv[])
                         std::string scoreStr = "Score: " + std::to_string(score);
                         scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                     }
-
                 }
                 else if(testPower-> whichOne == 2)
                 {
-                    for (int i = 0; i < lvlDifficulty; i++)
+                    for (int i = 0; i <= lvlDifficulty; i++)
                     {
-                        testBall[i]->color = 5;
+                        testBall[i]->changeColor(5);
                     }
                 }
                 testPower = NULL;
@@ -173,17 +171,20 @@ int main(int argc, char *argv[])
                 testBall[i]->Update(0, 1);
                 testBall[i]->Paste(ScreenSurface);
                 int ballColor = testBall[i]->color;
-                if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
-                    // Make new ball
-                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
-                    score+=10;
-                    std::string scoreStr = "Score: " + std::to_string(score);
-                    scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
-                }
-                for(int j=0; j<4; j++) {
-                    if(testBall[i]->color == 5 && testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                if(ballColor < 4) {
+                    if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
+                        // Make new ball
                         testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                         score+=10;
+                        std::string scoreStr = "Score: " + std::to_string(score);
+                        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                    }
+                } else {
+                    for(int j=0; j<4; j++) {
+                        if(testBall[i]->color == 5 && testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                            score+=10;
+                        }
                     }
                 }
 

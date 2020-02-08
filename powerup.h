@@ -31,7 +31,7 @@ public:
         SDL_Rect dest = {x, y};
         SDL_BlitSurface( sprite, NULL, ScreenSurface, &dest );
     }
-    
+
     bool touchingBox(int targetX, int targetY, int width, int height) {
         if((x > targetX && x < targetX+width) || (x+40 > targetX && x+40 < targetX+width))
         {
