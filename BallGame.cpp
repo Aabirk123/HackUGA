@@ -28,10 +28,14 @@ int main(int argc, char *argv[])
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
+    SDL_Surface* exlposoion= SDL_LoadBMP("explosion.bmp");
+
 
     SDL_Surface* powerUp1 = SDL_LoadBMP("powerup");
     SDL_Surface* powerUp2 = SDL_LoadBMP("powerup2");
     SDL_Surface* powerUp3 = SDL_LoadBMP("powerup3");
+
+
 
     //Main loop flag
     bool quit = false;
@@ -41,22 +45,23 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
+        crater[i] = new Crater(64+i*128, 420, i+1);
     }
-    
+    int timeSlow =2;
     int xVelo = 0;
     int lvlDifficulty = 5;
     int numPowerups = 0;
     int score = 0;
     SDL_Color color = {255, 255, 255};
-    //SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
+    SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
     int frameCount = 0;
+    int currentFrame = 0;
 
     std::unique_ptr<Ball> testBall[100];
     std::unique_ptr<powerUp> testPower[100];
     for(int i = 0; i <= lvlDifficulty; i++)
     {
-        testBall[i] = std::make_unique<Ball>(100+(rand()%45)*10, (rand()%4)+1);
+        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
     }
     for(int j = 0; j <= 3; j++)
     {
@@ -112,35 +117,78 @@ int main(int argc, char *argv[])
             crater[i]->CheckOffscreen(SCREEN_WIDTH);
         }
         //Power Ups
-        /*
+        
             int timer = SDL_geticks();
             if(timer % 10000 == 0)
             {
                 // Make a new powerup
-                testPower[numPowerups] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%3)+1);
+                testPower[numPowerups] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
                 numPowerups++;
 
-                //testPower[l]->Paste(ScreenSurface);
+                testPower[l]->Paste(ScreenSurface);
             }
             if(numPowerups>0)
             {
-                
+                testPower[l]->update(1);
+                for(int i = 1; i< 4; i++ )
+                {
+                    if(testPower[l] -> touchingBox(crater[i]->x, crater[i]->y, 100, 100))
+                    {
+                        if(testPower[l]-> whichOne == 1)
+                        {
+                            timeSlow+=3;
+                            currentFrame = 0;
+                        }
+                        else if(testPower[l]-> whichOne == 2)
+                        {
+                            for(int i = 0; i<=lvlDifficulty; i++)
+                            {
+                                //makes new ball set erasing the old one
+                                testBall[i] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%4)+1);
+                                score+=10*i;
+                            }
 
+                        }
+                        else if(testPower[l]-> whichOne == 3)
+                        {
+                            for (int i = 0; i < lvlDifficulty; i++)
+                            {
+                                testBall[i]->color = 5;
+                            }
+                        }
+                        
+                    }
+                }
+            
             }
-        
-    */
+                            if(currentFrame % 10 == 0 && timeSlow != 2)
+                            {
+                                timeSlow = 2;
+                                
+                                
+
+                            }
+
+    
         // Moving balls
         frameCount++;
-        if(frameCount % 2 == 0) {
+        currentFrame++;
+        if(frameCount % timeSlow == 0) {
             for(int i = 0; i <= lvlDifficulty; i++)
             {
                 testBall[i]->Update(0, 1);
                 testBall[i]->Paste(ScreenSurface);
                 int ballColor = testBall[i]->color;
-                if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)) {
+                if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                     score+=10;
+                }
+                for(int j=0; j<4; j++) {
+                    if(testBall[i]->color = 5 && testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                        score+=10;
+                    }
                 }
 
                 // Offscreen
@@ -162,7 +210,7 @@ int main(int argc, char *argv[])
             crater[i]->Paste(ScreenSurface);
         }
         
-        //SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
@@ -172,7 +220,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         delete(crater[i]);
     }
-    SDL_DestroyWindow( Window );
+	SDL_DestroyWindow( Window );
     //TTF_CloseFont(font);
     //TTF_Quit();
     SDL_Quit();
