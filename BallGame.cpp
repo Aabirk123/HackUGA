@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     SDL_Surface* exlposoion= SDL_LoadBMP("explosion.bmp");
 
 
-
     //Main loop flag
     bool quit = false;
 
@@ -43,6 +42,8 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
+
+    
     int timeSlow =2;
     int xVelo = 0;
     int lvlDifficulty = 5;
