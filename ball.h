@@ -18,6 +18,12 @@ public:
         sprite = SDL_LoadBMP( text.c_str() );
     }
 
+    changeColor(int newColor) {
+        this->color = newColor-1;
+        std::string text = "ball" + std::to_string(newColor) + ".bmp";
+        sprite = SDL_LoadBMP( text.c_str() );
+    }
+
     //Parametrized Constructor
     ~Ball() {
 	    SDL_FreeSurface( sprite );
