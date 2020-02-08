@@ -119,45 +119,45 @@ int main(int argc, char *argv[])
         }
         //Power Ups
         
-            int timer = SDL_geticks();
+            int timer = SDL_GetTicks();
             if(timer % 10000 == 0)
             {
                 // Make a new powerup
                 testPower[numPowerups] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
                 numPowerups++;
-
-                testPower[l]->Paste(ScreenSurface);
             }
             if(numPowerups>0)
             {
-                testPower[l]->update(1);
-                for(int i = 1; i< 4; i++ )
+                for(int l = 1; l< numPowerups; l++ )
                 {
-                    if(testPower[l] -> touchingBox(crater[i]->x, crater[i]->y, 100, 100))
+                    for(int i = 1; i< 4; i++ )
                     {
-                        if(testPower[l]-> whichOne == 1)
+                        testPower[l]->update(1);
+                        if(testPower[l] -> touchingBox(crater[i]->x, crater[i]->y, 100, 100))
                         {
-                            timeSlow+=3;
-                            currentFrame = 0;
-                        }
-                        else if(testPower[l]-> whichOne == 2)
-                        {
-                            for(int i = 0; i<=lvlDifficulty; i++)
+                            if(testPower[l]-> whichOne == 1)
                             {
-                                //makes new ball set erasing the old one
-                                testBall[i] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%4)+1);
-                                score+=10*i;
+                                timeSlow+=3;
+                                currentFrame = 0;
                             }
+                            else if(testPower[l]-> whichOne == 2)
+                            {
+                                for(int i = 0; i<=lvlDifficulty; i++)
+                                {
+                                    //makes new ball set erasing the old one
+                                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
+                                    score+=10*i;
+                                }
 
-                        }
-                        else if(testPower[l]-> whichOne == 3)
-                        {
-                            for (int i = 0; i < lvlDifficulty; i++)
+                            }
+                            else if(testPower[l]-> whichOne == 3)
                             {
-                                testBall[i]->color = 5;
+                                for (int i = 0; i < lvlDifficulty; i++)
+                                {
+                                    testBall[i]->color = 5;
+                                }
                             }
                         }
-                        
                     }
                 }
             
