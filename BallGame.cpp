@@ -8,7 +8,7 @@
 #include "ball.h"
 
 const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_HEIGHT = 600;
 
 int main(int argc, char *argv[])
 {
@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
                     break;
 
                     case SDLK_LEFT:
-                        xVelo = -1;
+                        xVelo = -2;
                     break;
 
                     case SDLK_RIGHT:
-                        xVelo = 1;
+                        xVelo = 2;
                     break;
                 }
             } else if( e.type == SDL_KEYUP) {
@@ -98,17 +98,17 @@ int main(int argc, char *argv[])
         if(frameCount % 2 == 0) {
             for(int i = 0; i <= lvlDifficulty; i++)
             {
-                testBall[i]->Update(1);
+                testBall[i]->Update(xVelo, 1);
                 testBall[i]->Paste(ScreenSurface);
                 int ballColor = testBall[i]->color;
-                if(testBall[i]->touchingBox(C1[ballColor].x, C1[ballColor].y, 120, 40)) {
+                if(testBall[i]->touchingBox(C1[ballColor].x, C1[ballColor].y, 100, 100)) {
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                     score+=10;
                 }
 
                 // Offscreen
-                if(testBall[i]->touchingBox(0, 520, 1000, 10)) {
+                if(testBall[i]->touchingBox(-100, SCREEN_HEIGHT, 1000, 10)) {
                     // Make new ball
                     testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
                 }

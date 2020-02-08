@@ -23,7 +23,8 @@ public:
 	    //SDL_FreeSurface( sprite );
     }
 
-    void Update(int speed) {
+    void Update(int xSpeed, int speed) {
+        x += xSpeed;
         y += speed;
     }
 
