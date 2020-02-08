@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
 
     // Import image
     SDL_Surface* gXOut = SDL_LoadBMP( "byte.bmp" );
+    SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
 
     SDL_Surface* crator = SDL_LoadBMP( "crater1.bmp" );
     SDL_Surface* crator2 = SDL_LoadBMP( "crater2.bmp" );
@@ -61,11 +62,6 @@ int main(int argc, char *argv[])
         {
             xtime = -1;
         }*/
-        for(int i = 0; i <= lvlDifficulty; i++)
-        {
-            testBall[i]->Update(1);
-            testBall[i]->Paste(ScreenSurface);
-        }
         //Handle events on queue
         while( SDL_PollEvent( &e ) != 0 )
         {
@@ -104,6 +100,12 @@ int main(int argc, char *argv[])
             }
         }
 
+        SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
+        for(int i = 0; i <= lvlDifficulty; i++)
+        {
+            testBall[i]->Update(1);
+            testBall[i]->Paste(ScreenSurface);
+        }
         // Move player image's position
         dest.x += xVelo;
         //Apply the image
