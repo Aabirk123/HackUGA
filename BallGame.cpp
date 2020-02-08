@@ -1,4 +1,5 @@
 #include<SDL2/SDL.h>
+//#include <SDL2/SDL_ttf.h>
 #include<stdlib.h>
 #include<memory>
 #include<cstdio>
@@ -6,6 +7,7 @@
 
 #include "ball.h"
 #include "crater.h"
+#include "powerup.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 600;
@@ -15,20 +17,17 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     // Start SDL
     SDL_Init(SDL_INIT_EVERYTHING);
+    //TTF_Init();
     // Setup the screen
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
                             SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
+    //TTF_Font * font = TTF_OpenFont("Arial.ttf", 25);
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
-
-    SDL_Surface* crator1 = SDL_LoadBMP( "crater1.bmp" );
-    SDL_Surface* crator2 = SDL_LoadBMP( "crater2.bmp" );
-    SDL_Surface* crator3 = SDL_LoadBMP( "crater3.bmp" );
-    SDL_Surface* crator4 = SDL_LoadBMP( "crater4.bmp" );
 
     SDL_Surface* powerUp1 = SDL_LoadBMP("powerup");
     SDL_Surface* powerUp2 = SDL_LoadBMP("powerup2");
@@ -46,17 +45,22 @@ int main(int argc, char *argv[])
     }
     
     int xVelo = 0;
-    //int xtime = 0;
     int lvlDifficulty = 5;
     int score = 0;
+    SDL_Color color = {255, 255, 255};
+    //SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
     int frameCount = 0;
 
     std::unique_ptr<Ball> testBall[100];
+    std::unique_ptr<powerUp> testPower[100];
     for(int i = 0; i <= lvlDifficulty; i++)
     {
         testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, (rand()%4)+1);
     }
-
+    for(int j = 0; j <= 3; j++)
+    {
+        testPower[j] = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
+    }
     while( !quit )
     {
         while( SDL_PollEvent( &e ) != 0 )
@@ -105,7 +109,17 @@ int main(int argc, char *argv[])
             crater[i]->Update(xVelo, 0);
             crater[i]->CheckOffscreen(SCREEN_WIDTH);
         }
-
+        //Power Ups
+        /*
+            int l = 0;
+            int timer = SDL_geticks();
+            if(timer % 10000 == 0)
+            {
+                testPower[l]->Paste(ScreenSurface)
+            }
+            if(l>)
+        
+    */
         // Moving balls
         frameCount++;
         if(frameCount % 2 == 0) {
@@ -139,6 +153,7 @@ int main(int argc, char *argv[])
             crater[i]->Paste(ScreenSurface);
         }
         
+        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
@@ -149,6 +164,9 @@ int main(int argc, char *argv[])
         delete(crater[i]);
     }
 	SDL_DestroyWindow( Window );
+    //TTF_CloseFont(font);
+    //TTF_Quit();
+    SDL_Quit();
 
     return 0;
 }
