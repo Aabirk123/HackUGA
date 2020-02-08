@@ -1,31 +1,40 @@
 #include <SDL2/SDL.h>
 #include<string>
 
-class Ball
+class Crater
 {
 protected:
-    int x;
-    int y;
     SDL_Surface* sprite;
 public:
+    int x;
+    int y;
     int color;
     //Parametrized Constructor
-    Ball(int x, int color) {
+    Crater(int x, int y, int color) {
         this->x = x;
-        this->y = -10;
+        this->y = y;
         this->color = color-1;
-        std::string text = "ball" + std::to_string(color) + ".bmp";
+        std::string text = "crater" + std::to_string(color) + ".bmp";
         sprite = SDL_LoadBMP( text.c_str() );
     }
 
     //Parametrized Constructor
-    ~Ball() {
+    ~Crater() {
 	    SDL_FreeSurface( sprite );
     }
 
     void Update(int xSpeed, int speed) {
         x += xSpeed;
         y += speed;
+    }
+
+    void CheckOffscreen(int screenWidth) {
+        if(x < -100) {
+            x = screenWidth;
+        }
+        if(x > screenWidth) {
+            x = -100;
+        }
     }
 
     bool touchingBox(int targetX, int targetY, int width, int height) {

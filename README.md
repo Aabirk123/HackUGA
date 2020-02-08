@@ -4,7 +4,6 @@ For UGA grouo
 # Other features
 Time-slow powerup
 Erase-balls power
-Randomize-color power*
 Decolorizer (balls can go into any planet)
 Wrapping around the screen
 Combos
