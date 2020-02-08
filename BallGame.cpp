@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(64+i*128, 420, i+1);
+        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
     
     int xVelo = 0;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
             crater[i]->Paste(ScreenSurface);
         }
         
-        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+        //SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
         //Update the surface
         SDL_UpdateWindowSurface( Window );
         SDL_Delay(5);
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         delete(crater[i]);
     }
-	SDL_DestroyWindow( Window );
+    SDL_DestroyWindow( Window );
     //TTF_CloseFont(font);
     //TTF_Quit();
     SDL_Quit();
