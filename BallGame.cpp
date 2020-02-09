@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                            SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
+                            SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
     TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
@@ -314,11 +314,32 @@ int main(int argc, char *argv[])
             }
             explosions.Update(frameCount);
             explosions.PasteAll(ScreenSurface, spaceX);
+            
+            // Boss level stuff
             if(level == 4) {
                 boss->Update();
                 boss->Paste(ScreenSurface);
+
+                if(frameCount % 700 == 0 && lvlDifficulty < 20) {
+                    lvlDifficulty++;
+                    testBall[lvlDifficulty] = std::make_unique<Ball>(boss->x+(rand()%150)+10, boss->y, boss->color);
+                }
+                for(int i=0; i<=lvlDifficulty; i++) {
+                    if(testBall[i]->y < 0) {
+                        testBall[i]->x = boss->x+(rand()%150)+10;
+                        testBall[i]->y = boss->y;
+                    }
+                    if(testBall[i]->y < boss->y && testBall[i]->x > boss->x && testBall[i]->x < boss->x+200) {
+                        testBall[i]->x = boss->x+(rand()%150)+10;
+                        testBall[i]->y = boss->y;
+                        testBall[i]->changeColor(boss->color);
+                    }
+                    if(testBall[i]->color != boss->color && testBall[i]->touchingBox(boss->x, boss->y, 200, 120)) {
+                        testBall[i]->changeColor(boss->color+1);
+                    }
+                }
             }
-            
+
             // Byte
             SDL_Rect byteClip = {1,1,56,71};
             if(score >= 200+level*100) {
@@ -348,11 +369,11 @@ int main(int argc, char *argv[])
             if(combo >= 10 )
             {
                 SDL_Surface * cleared = TTF_RenderText_Solid(font, "Giga-Byte Ready!", color);
-                SDL_Rect dest = {SCREEN_WIDTH-240, 0};
+                SDL_Rect dest = {SCREEN_WIDTH-200, 0};
                 SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
 
                 SDL_Surface * space = TTF_RenderText_Solid(font, "Press Spacebar!", color);
-                SDL_Rect dest2 = {SCREEN_WIDTH-235, 25};
+                SDL_Rect dest2 = {SCREEN_WIDTH-195, 25};
                 SDL_BlitSurface( space, NULL, ScreenSurface, &dest2 );
                 SDL_UpdateWindowSurface( Window );
             } else if(combo > 1) {
@@ -379,28 +400,6 @@ int main(int argc, char *argv[])
                 //baseSlowness+=1;
                 score = 0;
                 quit = true;
-            }
-
-            // Boss level stuff
-            if(level == 4) {
-                if(frameCount % 700 == 0 && lvlDifficulty < 20) {
-                    lvlDifficulty++;
-                    testBall[lvlDifficulty] = std::make_unique<Ball>(boss->x+(rand()%150)+10, boss->y, boss->color);
-                }
-                for(int i=0; i<=lvlDifficulty; i++) {
-                    if(testBall[i]->y < 0) {
-                        testBall[i]->x = boss->x+(rand()%150)+10;
-                        testBall[i]->y = boss->y;
-                    }
-                    if(testBall[i]->y < boss->y && testBall[i]->x > boss->x && testBall[i]->x < boss->x+200) {
-                        testBall[i]->x = boss->x+(rand()%150)+10;
-                        testBall[i]->y = boss->y;
-                        testBall[i]->changeColor(boss->color);
-                    }
-                    if(testBall[i]->color != boss->color && testBall[i]->touchingBox(boss->x, boss->y, 200, 120)) {
-                        testBall[i]->changeColor(boss->color+1);
-                    }
-                }
             }
         } // End regular game loop
 

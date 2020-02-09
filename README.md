@@ -1,2 +1,21 @@
-# HackUGA
-For UGA group
+# Space Byte
+Space Byte is an intuitive, fast, color-matching arcade-style video game about protecting the earth from the Meteor Storm by maneuvering satellite moons to shield earth from extinction.
+
+# The Origin for Space Byte
+On Friday evening at UGAHacks, three individual students from three different colleges would form a team to make a video game. We wanted to make a small, but addictive game similar to the classic arcade games or modern iPhone style. Early on, we decided on color-matching as the core gameplay mechanic due to its simple premise but broad use. There are hundreds of small, color-matching games on the Apple Store, and each one features a different orientation and a different set of required skills. We built the game into a _mininmum viable product_ as quickly as possible, and then spent the rest of the 36 hours fine-tuning and tweaking the game to make it as smooth and satisfying an experience as it could possibly be. We didn't want to make a game that required you to beat three easy levels before reaching a point you could actually be challenged. We wanted to make a game that is fun from the start, and that is what we accomplished.
+
+# Language and Implementation
+Space Bytes is made in C++. Entirely. It does not use any game engine, physics engine, or advanced game library. We imported SDL, a robust graphics library, and made everything else the game would use by hand. The game's many entities, from meteors to the satellite moons, to the short explosions that appear when a meteor is successfully destroyed, are all saved in objects. The game begins each frame by accepting user input, calling the **_Update_** method on each object, and then printing out each object with the **_Paste_** method. This simple design allows navigating the main class easier, despite its large size. Explosions, due to how common they are, are handled in an **Explosion Manager**, which holds the x, y, and timeLeft for every explosion, and handles all of them in its **_Update_** and **_Paste_** methods.
+
+# Special Features
+Space Byte includes a helpful array of powerup meteors, which fly twice as fast as regular meteors, and can be collected by any satellite. These powerups include:
+* Slow, making all meteors fall slower
+* Bomb, destroying all meteors on screen
+* Decolorize, making all meteors white, which can be intercepted by any satellite.
+Along with these occasional interrupts to the game's usual flow, players can purposefully activate a _bomb_ powerup any time they have a combo of ten or more meteors. This adds a timing and judgment mechanic to the game, adding more depth to the experience. The game's progression runs on a scoring system that defines when a "_level_" is cleared. The score and accompanying goal are always printed on the top-left of the screen. When a level is completed, the next one starts a few seconds later, with meteors spawning closer together, and occasionally falling faster. This allows for a gentle, but noticeable skill curve, so once a player has proved they can complete a certain difficulty level, moving on from that level is quick and rewarding.
+
+# Intuitive Design
+Space Bytes, obviously, cameos Byte on the regular playing screen, who huddles over a laptop and emotes to the player's actions. This is so new players, who are unsure if the goal is to intercept or accept meteors, to immediately understand when something is a wrong move. To keep the arcade aesthetic, we wanted the game not to feature a tutorial and not to need one. This required us to invent efficient uses of our onscreen space for on-screen UI and nonverbal hints to help the player learn the game's mechanics, which I believe have helped give the Space Bytes the "instant pick-up-and-play" feel we aimed for the game to have, while not adding a burdensome tutorial level at the very beginning.
+
+# Precedent
+Space Bytes is a short, but action-packed color-matcher, with a simple idea and a lot of thought. The game includes speed, strategy, exhilarating moments, even progression, and even a final boss for those skillful enough to reach the last level. As a 36-hour game, Space Bytes is a strong entry in the game-making tradition, and a fantastic game. The Windows .exe binary of the modern stable release is hosted on github, and can be played at any time.
