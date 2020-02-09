@@ -14,6 +14,16 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+void makeNewBall(std::unique_ptr<Ball> testBall[], int target, int minDist) {
+    // Max Y
+    int maxY = testBall[target]->y;
+    for(int i=0; testBall[i] != NULL; i++) {
+        if(testBall[i]->y < maxY)
+            maxY = testBall[i]->y;
+    }
+    testBall[target] = std::make_unique<Ball>(100+(rand()%9)*50, maxY-minDist-(rand()%10)*20, (rand()%4)+1);
+}
+
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
@@ -51,6 +61,7 @@ int main(int argc, char *argv[])
     int baseSlowness = 2;
     int level = 0;
     int lvlDifficulty = 3;
+    int minDist = 50;
 
     SDL_Color color = {255, 255, 255};
     SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
@@ -75,7 +86,7 @@ int main(int argc, char *argv[])
         testPower = NULL;
         for(int i = 0; i <= lvlDifficulty; i++)
         {
-            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+            makeNewBall(testBall, i, minDist);
         }
 
         while( !quit )
@@ -178,7 +189,7 @@ int main(int argc, char *argv[])
                         {
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             //makes new ball set erasing the old one
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            makeNewBall(testBall, i, minDist);
                             score+=10*lvlDifficulty;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -213,7 +224,7 @@ int main(int argc, char *argv[])
                         if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 50, 50)){
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             // Make new ball
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            makeNewBall(testBall, i, minDist);
                             score+=10;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -223,7 +234,7 @@ int main(int argc, char *argv[])
                         for(int j=0; j<4; j++) {
                             if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 50, 50)) {
                                 explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                                testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                                makeNewBall(testBall, i, minDist);
                                 score+=10;
                                 std::string scoreStr = "Score: " + std::to_string(score);
                                 scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -237,7 +248,7 @@ int main(int argc, char *argv[])
                         explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                         earthX = 30;
                         // Make new ball
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                        makeNewBall(testBall, i, minDist);
                         collisions++;
                         combo = 0;
                     }
@@ -251,7 +262,8 @@ int main(int argc, char *argv[])
                         updateSpeed = 1;
                         baseSlowness = 2;
                         level = 0;
-                        lvlDifficulty = 3;                        
+                        lvlDifficulty = 3;
+                        minDist = 50;
                     }
                 }
             } else {
@@ -271,6 +283,8 @@ int main(int argc, char *argv[])
             if(score >= 200+level*10) {
                 lvlDifficulty+=1;
                 speedIncrease++;
+                if(minDist > 0)
+                    minDist -= 5;
                 if(lvlDifficulty % 2 == 0) {
                     updateSpeed+=1;
                 }
