@@ -43,10 +43,10 @@ public:
         }
     }
 
-    void PasteAll(SDL_Surface* ScreenSurface) {
+    void PasteAll(SDL_Surface* ScreenSurface, int spaceX) {
         for(int i=0; i<num; i++) {
             if(framesToDestroy[i] != 0) {
-                SDL_Rect dest = {x[i], y[i]};
+                SDL_Rect dest = {x[i]+spaceX, y[i]};
                 SDL_BlitSurface( sprite, NULL, ScreenSurface, &dest );
             }
         }

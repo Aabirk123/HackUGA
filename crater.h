@@ -45,8 +45,8 @@ public:
         }
         return false;
     }
-    void Paste(SDL_Surface* ScreenSurface) {
-        SDL_Rect dest = {x, y};
+    void Paste(SDL_Surface* ScreenSurface, int spaceX) {
+        SDL_Rect dest = {x+spaceX, y};
         SDL_BlitSurface( sprite, NULL, ScreenSurface, &dest );
     }
 };
