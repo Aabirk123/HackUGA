@@ -30,8 +30,10 @@ int main(int argc, char *argv[])
 
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
-    //SDL_Surface* Earth = SDL_LoadBMP("earth.bmp")
-
+    SDL_Surface* Earth = SDL_LoadBMP("earth.bmp");
+    SDL_Surface* Lose = SDL_LoadBMP("lose.bmp");
+    //SDL_Rect earthPos = {0, SCREEN_HEIGHT-90};
+    int earthX = 0;
 
     //Main loop flag
     bool quit = false;
@@ -43,6 +45,8 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
+    int updateSpeed = 1;
+    int combo = 0;
     int collisions = 0;
     int timeSlow =2;
     int xVelo = 0;
@@ -57,183 +61,201 @@ int main(int argc, char *argv[])
     ExplosionManager explosions;
     std::unique_ptr<Ball> testBall[100];
     std::unique_ptr<powerUp> testPower;
-    for(int i = 0; i <= lvlDifficulty; i++)
-    {
-        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-    }
 
-    while( !quit )
-    {
-        while( SDL_PollEvent( &e ) != 0 )
+    while(playing) {
+        for(int i = 0; i <= lvlDifficulty; i++)
         {
-            //User requests quit
-            if( e.type == SDL_QUIT )
-            {
-                quit = true;
-            } //User presses a key
-            else if( e.type == SDL_KEYDOWN )
-            {
-                switch( e.key.keysym.sym )
-                {
-                    case SDLK_ESCAPE:
-                        quit = true;
-                    break;
-
-                    case SDLK_LEFT:
-                        xVelo = -2;
-                    break;
-
-                    case SDLK_RIGHT:
-                        xVelo = 2;
-                    break;
-                }
-            } else if( e.type == SDL_KEYUP) {
-                switch( e.key.keysym.sym )
-                {
-                    case SDLK_LEFT:
-                        if(xVelo < 0)
-                            xVelo = 0;
-                    break;
-
-                    case SDLK_RIGHT:
-                        if(xVelo > 0)
-                            xVelo = 0;
-                    break;
-                }
-            }
+            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
         }
 
-        SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
-        // Moving planets
-        for(int i = 0; i < 4; i++)
+        while( !quit )
         {
-            crater[i]->Update(xVelo, 0);
-            crater[i]->CheckOffscreen(SCREEN_WIDTH);
-            crater[i]->Paste(ScreenSurface);
-        }
-
-        // Increases amount of lives
-        if(powerCount %10000 == 0 && collisions != 0)
-        {
-            collisions--;
-
-        }
-        //Power Ups
-        powerCount++;
-        if(powerCount % 3000 == 0)
-        {
-            // Make a new powerup
-            testPower = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
-        }
-        if(testPower != NULL) {
-            testPower->update(1);
-            testPower->Paste(ScreenSurface);
-
-            bool collided = false;
-            for(int i = 0; i< 4; i++ )
+            while( SDL_PollEvent( &e ) != 0 )
             {
-                if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
-                    std::cout << "Collided" << std::endl;
-                    collided = true;
-                }
-            }
-
-            if(collided)
-            {
-                if(testPower-> whichOne == 0)
-                {
-                    timeSlow+=5;
-                    currentFrame = 1;
-                }
-                else if(testPower-> whichOne == 1)
-                {
-                    for(int i = 0; i<=lvlDifficulty; i++)
-                    {
-                        explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                        //makes new ball set erasing the old one
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-                        score+=10*lvlDifficulty;
-                        std::string scoreStr = "Score: " + std::to_string(score);
-                        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
-                    }
-                }
-                else if(testPower-> whichOne == 2)
-                {
-                    for (int i = 0; i <= lvlDifficulty; i++)
-                    {
-                        testBall[i]->changeColor(5);
-                    }
-                }
-                testPower = NULL;
-            }
-        }
-        if(currentFrame % 1000 == 0 && timeSlow != 2)
-        {
-            timeSlow = 2;
-        }
-
-    
-        // Moving balls
-        frameCount++;
-        currentFrame++;
-        if(frameCount % timeSlow == 0) {
-            for(int i = 0; i <= lvlDifficulty; i++)
-            {
-                testBall[i]->Update(0, 1);
-                testBall[i]->Paste(ScreenSurface);
-                int ballColor = testBall[i]->color;
-                if(ballColor < 4) {
-                    if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
-                        explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                        // Make new ball
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-                        score+=10;
-                        std::string scoreStr = "Score: " + std::to_string(score);
-                        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
-                    }
-                } else {
-                    for(int j=0; j<4; j++) {
-                        if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
-                            explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-                            score+=10;
-                        }
-                    }
-                }
-
-                // Offscreen
-                if(testBall[i]->touchingBox(-100, SCREEN_HEIGHT, 1000, 10)) {
-                    // Make new ball
-                    testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-                    collisions++;
-                }
-
-                //Game over man, game over!
-                if(collisions ==  3)
+                //User requests quit
+                if( e.type == SDL_QUIT )
                 {
                     quit = true;
+                } //User presses a key
+                else if( e.type == SDL_KEYDOWN )
+                {
+                    switch( e.key.keysym.sym )
+                    {
+                        case SDLK_ESCAPE:
+                            quit = true;
+                        break;
 
+                        case SDLK_LEFT:
+                            xVelo = -2;
+                        break;
+
+                        case SDLK_RIGHT:
+                            xVelo = 2;
+                        break;
+                    }
+                } else if( e.type == SDL_KEYUP) {
+                    switch( e.key.keysym.sym )
+                    {
+                        case SDLK_LEFT:
+                            if(xVelo < 0)
+                                xVelo = 0;
+                        break;
+
+                        case SDLK_RIGHT:
+                            if(xVelo > 0)
+                                xVelo = 0;
+                        break;
+                    }
                 }
             }
-        } else {
-            for(int i = 0; i <= lvlDifficulty; i++)
-            {
-                testBall[i]->Paste(ScreenSurface);
-            }
-        }
-        explosions.Update(frameCount);
-        explosions.PasteAll(ScreenSurface);
 
-        SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
-        //Update the surface
-        SDL_UpdateWindowSurface( Window );
-        SDL_Delay(5);
-        //updates difficulty 
-        if(score % 200 == 0 && score > 0) {
-            lvlDifficulty+=2;
-            testBall[lvlDifficulty-1] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-            testBall[lvlDifficulty-2] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
-            
+            SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
+            // Earth SHAKING aftre being hit
+            if(earthX != 0 && frameCount %2 == 0) {
+                std::cout << earthX << std::endl;
+                if(earthX > 0)
+                    earthX = -earthX+1;
+                else if(earthX < 0) {
+                    earthX = -earthX-1;
+                }
+            }
+            SDL_Rect earthPos = {earthX, SCREEN_HEIGHT-80};
+            SDL_BlitSurface( Earth, NULL, ScreenSurface, &earthPos);
+            // Moving planets
+            for(int i = 0; i < 4; i++)
+            {
+                crater[i]->Update(xVelo, 0);
+                crater[i]->CheckOffscreen(SCREEN_WIDTH);
+                crater[i]->Paste(ScreenSurface);
+            }
+
+            // Increases amount of lives
+            if(powerCount %10000 == 0 && collisions != 0)
+            {
+                collisions--;
+
+            }
+            //Power Ups
+            powerCount++;
+            if(powerCount % 3000 == 0)
+            {
+                // Make a new powerup
+                testPower = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
+            }
+            if(testPower != NULL) {
+                testPower->update(1);
+                testPower->Paste(ScreenSurface);
+
+                bool collided = false;
+                for(int i = 0; i< 4; i++ )
+                {
+                    if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
+                        std::cout << "Collided" << std::endl;
+                        collided = true;
+                    }
+                }
+
+                if(collided)
+                {
+                    if(testPower-> whichOne == 0)
+                    {
+                        timeSlow+=5;
+                        currentFrame = 1;
+                    }
+                    else if(testPower-> whichOne == 1)
+                    {
+                        for(int i = 0; i<=lvlDifficulty; i++)
+                        {
+                            explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                            //makes new ball set erasing the old one
+                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            score+=10*lvlDifficulty;
+                            std::string scoreStr = "Score: " + std::to_string(score);
+                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                        }
+                    }
+                    else if(testPower-> whichOne == 2)
+                    {
+                        for (int i = 0; i <= lvlDifficulty; i++)
+                        {
+                            testBall[i]->changeColor(5);
+                        }
+                    }
+                    testPower = NULL;
+                }
+            }
+            if(currentFrame % 1000 == 0 && timeSlow != 2)
+            {
+                timeSlow = 2;
+            }
+
+        
+            // Moving balls
+            frameCount++;
+            currentFrame++;
+            if(frameCount % timeSlow == 0) {
+                for(int i = 0; i <= lvlDifficulty; i++)
+                {
+                    testBall[i]->Update(0, updateSpeed);
+                    testBall[i]->Paste(ScreenSurface);
+                    int ballColor = testBall[i]->color;
+                    if(ballColor < 4) {
+                        if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
+                            explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                            // Make new ball
+                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            score+=10;
+                            combo++;
+                            std::string scoreStr = "Score: " + std::to_string(score);
+                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                        }
+                    } else {
+                        for(int j=0; j<4; j++) {
+                            if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                                explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                                testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                                score+=10;
+                                combo++;
+                            }
+                        }
+                    }
+
+                    // Offscreen
+                    if(testBall[i]->touchingBox(-1000, SCREEN_HEIGHT-50, 2000, 50)) {
+                        explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                        earthX = 30;
+                        // Make new ball
+                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                        collisions++;
+                        combo = 0;
+                    }
+
+                    //Game over man, game over!
+                    if(collisions ==  3)
+                    {
+                    // quit = true;
+
+                    }
+                }
+            } else {
+                for(int i = 0; i <= lvlDifficulty; i++)
+                {
+                    testBall[i]->Paste(ScreenSurface);
+                }
+            }
+            explosions.Update(frameCount);
+            explosions.PasteAll(ScreenSurface);
+
+            SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+            //Update the surface
+            SDL_UpdateWindowSurface( Window );
+            SDL_Delay(5);
+            //updates difficulty 
+            if(score % 200 == 0 && score > 0) {
+                lvlDifficulty+=2;
+                updateSpeed++;
+                score = 0;
+            }
         }
     }
 
