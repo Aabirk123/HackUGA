@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 
     //Main loop flag
     bool quit = false;
+    bool playing = true;
 
     //Event handler
     SDL_Event e;
@@ -46,14 +47,7 @@ int main(int argc, char *argv[])
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
     int updateSpeed = 1;
-    int combo = 0;
-    int collisions = 0;
-    int timeSlow =2;
-    int xVelo = 0;
     int lvlDifficulty = 3;
-    int score = 0;
-    int frameCount = 0; int powerCount;
-    int currentFrame = 0;
 
     SDL_Color color = {255, 255, 255};
     SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
@@ -63,6 +57,14 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower;
 
     while(playing) {
+        int combo = 0;
+        int collisions = 0;
+        int timeSlow =2;
+        int xVelo = 0;
+        int score = 0;
+        int frameCount = 0; int powerCount;
+        int currentFrame = 0;
+
         for(int i = 0; i <= lvlDifficulty; i++)
         {
             testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
@@ -76,6 +78,7 @@ int main(int argc, char *argv[])
                 if( e.type == SDL_QUIT )
                 {
                     quit = true;
+                    playing = false;
                 } //User presses a key
                 else if( e.type == SDL_KEYDOWN )
                 {
@@ -83,6 +86,7 @@ int main(int argc, char *argv[])
                     {
                         case SDLK_ESCAPE:
                             quit = true;
+                            playing = false;
                         break;
 
                         case SDLK_LEFT:
@@ -233,8 +237,7 @@ int main(int argc, char *argv[])
                     //Game over man, game over!
                     if(collisions ==  3)
                     {
-                    // quit = true;
-
+                        // game over screen
                     }
                 }
             } else {
@@ -255,8 +258,19 @@ int main(int argc, char *argv[])
                 lvlDifficulty+=2;
                 updateSpeed++;
                 score = 0;
+                quit = true;
             }
         }
+
+        if(collisions < 3) {
+            SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Level Cleared!", color);
+            SDL_UpdateWindowSurface( Window );
+            SDL_Delay(5000);
+
+        } else {
+            // Game over screen
+        }
+
     }
 
 	//Deallocate surface
