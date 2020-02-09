@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     int updateSpeed = 1;
     int speedIncrease = 2;
     int baseSlowness = 2;
-    int level = 4;
+    int level = 0;
     int lvlDifficulty = 3;
     int minDist = 50;
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
         
         // Boss level stuff
         if(level == 4) {
-            boss = std::make_unique<Boss>(SCREEN_WIDTH/2-50, -200, SCREEN_HEIGHT/3);
+            boss = std::make_unique<Boss>(SCREEN_WIDTH/2-100, -200, SCREEN_HEIGHT/5);
         }
 
         while( !quit )
@@ -314,8 +314,10 @@ int main(int argc, char *argv[])
             }
             explosions.Update(frameCount);
             explosions.PasteAll(ScreenSurface, spaceX);
-            boss->Update();
-            boss->Paste(ScreenSurface);
+            if(level == 4) {
+                boss->Update();
+                boss->Paste(ScreenSurface);
+            }
             
             // Byte
             SDL_Rect byteClip = {1,1,56,71};
@@ -348,6 +350,10 @@ int main(int argc, char *argv[])
                 SDL_Surface * cleared = TTF_RenderText_Solid(font, "Giga-Byte Ready!", color);
                 SDL_Rect dest = {SCREEN_WIDTH-240, 0};
                 SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+
+                SDL_Surface * space = TTF_RenderText_Solid(font, "Press Spacebar!", color);
+                SDL_Rect dest2 = {SCREEN_WIDTH-235, 25};
+                SDL_BlitSurface( space, NULL, ScreenSurface, &dest2 );
                 SDL_UpdateWindowSurface( Window );
             } else if(combo > 1) {
                 std::string comboMessage = std::to_string(combo) + "x combo!";
@@ -379,19 +385,51 @@ int main(int argc, char *argv[])
             if(level == 4) {
                 if(frameCount % 700 == 0 && lvlDifficulty < 20) {
                     lvlDifficulty++;
-                    testBall[lvlDifficulty] = std::make_unique<Ball>(boss->x-50, boss->y, boss->color);
+                    testBall[lvlDifficulty] = std::make_unique<Ball>(boss->x+(rand()%150)+10, boss->y, boss->color);
+                }
+                for(int i=0; i<=lvlDifficulty; i++) {
+                    if(testBall[i]->y < 0) {
+                        testBall[i]->x = boss->x+(rand()%150)+10;
+                        testBall[i]->y = boss->y;
+                    }
+                    if(testBall[i]->y < boss->y && testBall[i]->x > boss->x && testBall[i]->x < boss->x+200) {
+                        testBall[i]->x = boss->x+(rand()%150)+10;
+                        testBall[i]->y = boss->y;
+                        testBall[i]->changeColor(boss->color);
+                    }
+                    if(testBall[i]->color != boss->color && testBall[i]->touchingBox(boss->x, boss->y, 200, 120)) {
+                        testBall[i]->changeColor(boss->color+1);
+                    }
                 }
             }
         } // End regular game loop
 
-        if(collisions < 3 && playing) {
+        if(level == 5) {
+            SDL_Surface* deadBoss = SDL_LoadBMP( "bossexplosion.bmp" );
+            SDL_Rect ded = {boss->x, boss->y};
+            SDL_BlitSurface( deadBoss, NULL, ScreenSurface, &ded );
+
+            SDL_Surface * cleared = TTF_RenderText_Solid(font, "You saved the earth!", color);
+            SDL_Rect dest = {SCREEN_WIDTH/2-150/2, SCREEN_HEIGHT/2};
+            SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+
+            SDL_Surface * thanks = TTF_RenderText_Solid(font, "Thank you for playing!", color);
+            SDL_Rect destB = {SCREEN_WIDTH/2-190/2, SCREEN_HEIGHT/2+20};
+            SDL_BlitSurface( thanks, NULL, ScreenSurface, &destB );
+
+            SDL_UpdateWindowSurface( Window );
+            SDL_Delay(5000);
+            boss = NULL;
+        }
+        else if(collisions < 3 && playing) {
             SDL_Surface * cleared = TTF_RenderText_Solid(font, "Level Cleared!", color);
             SDL_Rect dest = {SCREEN_WIDTH/2-140/2, SCREEN_HEIGHT/2};
             SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5000);
         }
-        if(collisions >= 3) {
+        else if(collisions >= 3) {
             // Game over screen
             SDL_Color gameOverColor = {255, 180, 180};
             SDL_Surface * gameOver = TTF_RenderText_Solid(font, "GAME OVER", gameOverColor);
