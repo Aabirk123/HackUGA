@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 340, i+1);
     }
-    int speedIncrease = 2;
     int updateSpeed = 1;
+    int speedIncrease = 2;
     int baseSlowness = 2;
     int level = 0;
     int lvlDifficulty = 3;
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
                 testPower = std::make_unique<powerUp>(100+(rand()%9)*50, (rand()%3)+1);
             }
             if(testPower != NULL) {
-                testPower->update(1);
+                testPower->update(updateSpeed+speedBoost);
                 testPower->Paste(ScreenSurface);
 
                 bool collided = false;
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
             if(frameCount % timeSlow == 0) {
                 for(int i = 0; i <= lvlDifficulty; i++)
                 {
-                    testBall[i]->Update(0, 1);
+                    testBall[i]->Update(0, updateSpeed+speedBoost);
                     testBall[i]->Paste(ScreenSurface);
                     int ballColor = testBall[i]->color;
                     if(ballColor < 4) {
@@ -287,11 +287,11 @@ int main(int argc, char *argv[])
                         // game over screen
                         quit = true;
                         speedIncrease = 2;
-                        updateSpeed = 1;
                         baseSlowness = 2;
                         level = 0;
                         lvlDifficulty = 3;
                         minDist = 50;
+                        updateSpeed = 1;
                     }
                 }
             } else {
@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
                     speedIncrease++;
                 if(minDist > 0)
                     minDist -= 5;
-                if(lvlDifficulty % 2 == 0) {
+                if(lvlDifficulty % 3 == 0) {
                     updateSpeed+=1;
                 }
                 //baseSlowness+=1;
