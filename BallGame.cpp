@@ -130,10 +130,12 @@ int main(int argc, char *argv[])
                             combo = 0;
                             for(int i = 0; i<=lvlDifficulty; i++)
                             {
-                                explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                                //makes new ball set erasing the old one
-                                makeNewBall(testBall, i, minDist);
-                                score+=10;
+                                if(testBall[i]->y > 0) {
+                                    explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                                    //makes new ball set erasing the old one
+                                    makeNewBall(testBall, i, minDist);
+                                    score+=10;
+                                }
                             }
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -215,13 +217,15 @@ int main(int argc, char *argv[])
                     {
                         for(int i = 0; i<=lvlDifficulty; i++)
                         {
-                            explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                            //makes new ball set erasing the old one
-                            makeNewBall(testBall, i, minDist);
-                            score+=10;
-                            std::string scoreStr = "Score: " + std::to_string(score);
-                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                            if(testBall[i]->y > 0) {
+                                explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                                //makes new ball set erasing the old one
+                                makeNewBall(testBall, i, minDist);
+                                score+=10;
+                            }
                         }
+                        std::string scoreStr = "Score: " + std::to_string(score);
+                        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                     }
                     else if(testPower-> whichOne == 2)
                     {
