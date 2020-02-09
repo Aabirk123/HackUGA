@@ -77,8 +77,6 @@ int main(int argc, char *argv[])
         int xVelo = 0;
         int score = 0;
         int speedBoost = 0;
-        std::string scoreStr = "Score: " + std::to_string(score);
-        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
 
         int frameCount = 0; int powerCount = 0;
         int currentFrame = 0;
@@ -125,20 +123,18 @@ int main(int argc, char *argv[])
                         break;
 
                         case SDLK_SPACE:
-                        if(combo > 10 )
+                        if(combo >= 10 )
                         {
                             combo = 0;
                             for(int i = 0; i<=lvlDifficulty; i++)
                             {
-                                if(testBall[i]->y > 0) {
+                                if(testBall[i]->y > -20) {
                                     explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                                     //makes new ball set erasing the old one
                                     makeNewBall(testBall, i, minDist);
                                     score+=10;
                                 }
                             }
-                            std::string scoreStr = "Score: " + std::to_string(score);
-                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                         }
                         break;
                     }
@@ -217,15 +213,13 @@ int main(int argc, char *argv[])
                     {
                         for(int i = 0; i<=lvlDifficulty; i++)
                         {
-                            if(testBall[i]->y > 0) {
+                            if(testBall[i]->y > -20) {
                                 explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                                 //makes new ball set erasing the old one
                                 makeNewBall(testBall, i, minDist);
                                 score+=10;
                             }
                         }
-                        std::string scoreStr = "Score: " + std::to_string(score);
-                        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                     }
                     else if(testPower-> whichOne == 2)
                     {
@@ -258,8 +252,6 @@ int main(int argc, char *argv[])
                             // Make new ball
                             makeNewBall(testBall, i, minDist);
                             score+=10;
-                            std::string scoreStr = "Score: " + std::to_string(score);
-                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                             combo++;
                         }
                     } else {
@@ -268,8 +260,6 @@ int main(int argc, char *argv[])
                                 explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                                 makeNewBall(testBall, i, minDist);
                                 score+=10;
-                                std::string scoreStr = "Score: " + std::to_string(score);
-                                scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                                 combo++;
                             }
                         }
@@ -307,7 +297,22 @@ int main(int argc, char *argv[])
             explosions.Update(frameCount);
             explosions.PasteAll(ScreenSurface);
 
+            std::string scoreStr = "Score: " + std::to_string(score) + "/" + std::to_string(200+level*100);
+            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
             SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+            if(combo >= 10 )
+            {
+                SDL_Surface * cleared = TTF_RenderText_Solid(font, "Power up available!", color);
+                SDL_Rect dest = {SCREEN_WIDTH-240, 0};
+                SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+                SDL_UpdateWindowSurface( Window );
+            } else if(combo > 1) {
+                std::string comboMessage = std::to_string(combo) + "x combo!";
+                SDL_Surface * cleared = TTF_RenderText_Solid(font, comboMessage.c_str(), color);
+                SDL_Rect dest = {SCREEN_WIDTH-170, 0};
+                SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+                SDL_UpdateWindowSurface( Window );
+            }
             //Update the surface
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5);
