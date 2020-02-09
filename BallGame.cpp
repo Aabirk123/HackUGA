@@ -16,7 +16,7 @@ const int SCREEN_HEIGHT = 480;
 
 void makeNewBall(std::unique_ptr<Ball> testBall[], int target, int minDist) {
     // Max Y
-    int maxY = testBall[target]->y;
+    int maxY = SCREEN_HEIGHT;
     for(int i=0; testBall[i] != NULL; i++) {
         if(testBall[i]->y < maxY)
             maxY = testBall[i]->y;
@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
         int timeSlow = baseSlowness;
         int xVelo = 0;
         int score = 0;
+        int speedBoost = 0;
         std::string scoreStr = "Score: " + std::to_string(score);
         scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
 
@@ -84,7 +85,10 @@ int main(int argc, char *argv[])
         quit = false;
 
         testPower = NULL;
-        for(int i = 0; i <= lvlDifficulty; i++)
+        // Make first ball at top of screen
+        makeNewBall(testBall, 0, minDist); testBall[0]->y = -20;
+        // Make all other balls
+        for(int i = 1; i <= lvlDifficulty; i++)
         {
             makeNewBall(testBall, i, minDist);
         }
@@ -115,6 +119,26 @@ int main(int argc, char *argv[])
                         case SDLK_RIGHT:
                             xVelo = speedIncrease;
                         break;
+                        
+                        case SDLK_DOWN:
+                            speedBoost = 2;
+                        break;
+
+                        case SDLK_SPACE:
+                        if(combo > 10 )
+                        {
+                            combo = 0;
+                            for(int i = 0; i<=lvlDifficulty; i++)
+                            {
+                                explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
+                                //makes new ball set erasing the old one
+                                makeNewBall(testBall, i, minDist);
+                                score+=10;
+                            }
+                            std::string scoreStr = "Score: " + std::to_string(score);
+                            scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                        }
+                        break;
                     }
                 } else if( e.type == SDL_KEYUP) {
                     switch( e.key.keysym.sym )
@@ -127,6 +151,10 @@ int main(int argc, char *argv[])
                         case SDLK_RIGHT:
                             if(xVelo > 0)
                                 xVelo = 0;
+                        break;
+
+                        case SDLK_DOWN:
+                            speedBoost = 0;
                         break;
                     }
                 }
@@ -190,7 +218,7 @@ int main(int argc, char *argv[])
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             //makes new ball set erasing the old one
                             makeNewBall(testBall, i, minDist);
-                            score+=10*lvlDifficulty;
+                            score+=10;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                         }
@@ -217,7 +245,7 @@ int main(int argc, char *argv[])
             if(frameCount % timeSlow == 0) {
                 for(int i = 0; i <= lvlDifficulty; i++)
                 {
-                    testBall[i]->Update(0, updateSpeed);
+                    testBall[i]->Update(0, 1);
                     testBall[i]->Paste(ScreenSurface);
                     int ballColor = testBall[i]->color;
                     if(ballColor < 4) {
@@ -280,9 +308,11 @@ int main(int argc, char *argv[])
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5);
             //updates difficulty 
-            if(score >= 200+level*10) {
+            if(score >= 200+level*100) {
+                level++;
                 lvlDifficulty+=1;
-                speedIncrease++;
+                if(speedIncrease < 4)
+                    speedIncrease++;
                 if(minDist > 0)
                     minDist -= 5;
                 if(lvlDifficulty % 2 == 0) {
@@ -341,6 +371,11 @@ int main(int argc, char *argv[])
             }
         }
 
+        for(int i=0; i<lvlDifficulty; i++) {
+            if(testBall[i] != NULL) {
+                testBall[i]->y = -20;
+            }
+        }
         explosions.reset();
     }
 
