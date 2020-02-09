@@ -33,9 +33,9 @@ public:
     }
 
     bool touchingBox(int targetX, int targetY, int width, int height) {
-        if((x > targetX && x < targetX+width) || (x+40 > targetX && x+40 < targetX+width))
+        if((x > targetX && x < targetX+width) || (x+20 > targetX && x+20 < targetX+width))
         {
-            if((y > targetY && y < targetY+height) || (y+40 > targetY && y+40 < targetY+height))
+            if((y > targetY && y < targetY+height) || (y+20 > targetY && y+20 < targetY+height))
                 return true;
         }
         return false;

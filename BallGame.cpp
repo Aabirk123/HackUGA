@@ -14,6 +14,16 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+void makeNewBall(std::unique_ptr<Ball> testBall[], int target, int minDist) {
+    // Max Y
+    int maxY = testBall[target]->y;
+    for(int i=0; testBall[i] != NULL; i++) {
+        if(testBall[i]->y < maxY)
+            maxY = testBall[i]->y;
+    }
+    testBall[target] = std::make_unique<Ball>(100+(rand()%9)*50, maxY-minDist-(rand()%10)*20, (rand()%4)+1);
+}
+
 int main(int argc, char *argv[])
 {
     srand(time(NULL));
@@ -24,7 +34,11 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
+<<<<<<< HEAD
 					  SDL_WINDOW_OPENGL);
+=======
+                            SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
+>>>>>>> 9c7f976fc667956c4c50338e6f47f9dc8ced45ee
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
     TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
@@ -44,11 +58,14 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 350, i+1);
+        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 340, i+1);
     }
+    int speedIncrease = 2;
     int updateSpeed = 1;
     int baseSlowness = 2;
+    int level = 0;
     int lvlDifficulty = 3;
+    int minDist = 50;
 
     SDL_Color color = {255, 255, 255};
     SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
@@ -63,13 +80,17 @@ int main(int argc, char *argv[])
         int timeSlow = baseSlowness;
         int xVelo = 0;
         int score = 0;
+        std::string scoreStr = "Score: " + std::to_string(score);
+        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+
         int frameCount = 0; int powerCount = 0;
         int currentFrame = 0;
         quit = false;
 
+        testPower = NULL;
         for(int i = 0; i <= lvlDifficulty; i++)
         {
-            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+            makeNewBall(testBall, i, minDist);
         }
 
         while( !quit )
@@ -92,11 +113,11 @@ int main(int argc, char *argv[])
                         break;
 
                         case SDLK_LEFT:
-                            xVelo = -2;
+                            xVelo = -speedIncrease;
                         break;
 
                         case SDLK_RIGHT:
-                            xVelo = 2;
+                            xVelo = speedIncrease;
                         break;
                     }
                 } else if( e.type == SDL_KEYUP) {
@@ -172,7 +193,7 @@ int main(int argc, char *argv[])
                         {
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             //makes new ball set erasing the old one
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            makeNewBall(testBall, i, minDist);
                             score+=10*lvlDifficulty;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -207,7 +228,7 @@ int main(int argc, char *argv[])
                         if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 50, 50)){
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             // Make new ball
-                            testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                            makeNewBall(testBall, i, minDist);
                             score+=10;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -217,7 +238,7 @@ int main(int argc, char *argv[])
                         for(int j=0; j<4; j++) {
                             if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 50, 50)) {
                                 explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
-                                testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                                makeNewBall(testBall, i, minDist);
                                 score+=10;
                                 std::string scoreStr = "Score: " + std::to_string(score);
                                 scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
@@ -231,7 +252,7 @@ int main(int argc, char *argv[])
                         explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                         earthX = 30;
                         // Make new ball
-                        testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
+                        makeNewBall(testBall, i, minDist);
                         collisions++;
                         combo = 0;
                     }
@@ -240,6 +261,13 @@ int main(int argc, char *argv[])
                     if(collisions ==  3)
                     {
                         // game over screen
+                        quit = true;
+                        speedIncrease = 2;
+                        updateSpeed = 1;
+                        baseSlowness = 2;
+                        level = 0;
+                        lvlDifficulty = 3;
+                        minDist = 50;
                     }
                 }
             } else {
@@ -256,10 +284,15 @@ int main(int argc, char *argv[])
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5);
             //updates difficulty 
-            if(score >= 200) {
+            if(score >= 200+level*10) {
                 lvlDifficulty+=1;
-                updateSpeed+=3;
-                baseSlowness+=2;
+                speedIncrease++;
+                if(minDist > 0)
+                    minDist -= 5;
+                if(lvlDifficulty % 2 == 0) {
+                    updateSpeed+=1;
+                }
+                //baseSlowness+=1;
                 score = 0;
                 quit = true;
             }
@@ -267,14 +300,49 @@ int main(int argc, char *argv[])
 
         if(collisions < 3 && playing) {
             SDL_Surface * cleared = TTF_RenderText_Solid(font, "Level Cleared!", color);
-            SDL_Rect dest = {SCREEN_WIDTH/2-175/2, SCREEN_HEIGHT/2};
+            SDL_Rect dest = {SCREEN_WIDTH/2-140/2, SCREEN_HEIGHT/2};
             SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5000);
         }
         if(collisions >= 3) {
             // Game over screen
+            SDL_Color gameOverColor = {255, 180, 180};
+            SDL_Surface * gameOver = TTF_RenderText_Solid(font, "GAME OVER", gameOverColor);
+            SDL_Rect destA = {SCREEN_WIDTH/2-110/2, SCREEN_HEIGHT/2-30};
 
+            SDL_Surface * gameOverRestart = TTF_RenderText_Solid(font, "Press enter to restart", color);
+            SDL_Rect destB = {SCREEN_WIDTH/2-200/2, SCREEN_HEIGHT/2};
+
+            quit = false;
+            while(!quit) {
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        quit = true;
+                        playing = false;
+                    } //User presses a key
+                    if( e.type == SDL_KEYDOWN )
+                    {
+                        switch( e.key.keysym.sym )
+                        {
+                            case SDLK_ESCAPE:
+                                quit = true;
+                                playing = false;
+                            break;
+                            case SDLK_RETURN:
+                                quit = true;
+                            break;
+                        }
+                    }
+                }
+                SDL_BlitSurface( gameOver, NULL, ScreenSurface, &destA );
+                SDL_BlitSurface( gameOverRestart, NULL, ScreenSurface, &destB );
+                SDL_UpdateWindowSurface( Window );
+                SDL_Delay(5);
+            }
         }
 
         explosions.reset();
