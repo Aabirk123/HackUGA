@@ -34,11 +34,7 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
-<<<<<<< HEAD
-					  SDL_WINDOW_OPENGL);
-=======
                             SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
->>>>>>> 9c7f976fc667956c4c50338e6f47f9dc8ced45ee
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
     TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
