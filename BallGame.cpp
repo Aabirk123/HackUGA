@@ -44,11 +44,12 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 350, i+1);
+        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 340, i+1);
     }
     int speedIncrease = 2;
     int updateSpeed = 1;
     int baseSlowness = 2;
+    int level = 0;
     int lvlDifficulty = 3;
 
     SDL_Color color = {255, 255, 255};
@@ -71,6 +72,7 @@ int main(int argc, char *argv[])
         int currentFrame = 0;
         quit = false;
 
+        testPower = NULL;
         for(int i = 0; i <= lvlDifficulty; i++)
         {
             testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
@@ -245,6 +247,11 @@ int main(int argc, char *argv[])
                     {
                         // game over screen
                         quit = true;
+                        speedIncrease = 2;
+                        updateSpeed = 1;
+                        baseSlowness = 2;
+                        level = 0;
+                        lvlDifficulty = 3;                        
                     }
                 }
             } else {
@@ -261,11 +268,13 @@ int main(int argc, char *argv[])
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5);
             //updates difficulty 
-            if(score >= 200) {
-                speedIncrease++;
+            if(score >= 200+level*10) {
                 lvlDifficulty+=1;
-                updateSpeed+=3;
-                baseSlowness+=2;
+                speedIncrease++;
+                if(lvlDifficulty % 2 == 0) {
+                    updateSpeed+=1;
+                }
+                //baseSlowness+=1;
                 score = 0;
                 quit = true;
             }
