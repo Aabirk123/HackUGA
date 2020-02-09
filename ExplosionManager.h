@@ -51,4 +51,11 @@ public:
             }
         }
     }
+
+    void reset() {
+        for(int i=0; i<num; i++) {
+            framesToDestroy[i] = 0;
+        }
+        num = 0;
+    }
 };

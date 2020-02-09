@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
                 bool collided = false;
                 for(int i = 0; i< 4; i++ )
                 {
-                    if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
+                    if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 50, 50)) {
                         collided = true;
                     }
                 }
@@ -204,21 +204,23 @@ int main(int argc, char *argv[])
                     testBall[i]->Paste(ScreenSurface);
                     int ballColor = testBall[i]->color;
                     if(ballColor < 4) {
-                        if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 100, 100)){
+                        if(testBall[i]->touchingBox(crater[ballColor]->x, crater[ballColor]->y, 50, 50)){
                             explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                             // Make new ball
                             testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
                             score+=10;
-                            combo++;
                             std::string scoreStr = "Score: " + std::to_string(score);
                             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+                            combo++;
                         }
                     } else {
                         for(int j=0; j<4; j++) {
-                            if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 100, 100)) {
+                            if(testBall[i]->touchingBox(crater[j]->x, crater[j]->y, 50, 50)) {
                                 explosions.add(testBall[i]->x, testBall[i]->y, frameCount);
                                 testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
                                 score+=10;
+                                std::string scoreStr = "Score: " + std::to_string(score);
+                                scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
                                 combo++;
                             }
                         }
@@ -256,8 +258,8 @@ int main(int argc, char *argv[])
             //updates difficulty 
             if(score >= 200) {
                 lvlDifficulty+=1;
-                updateSpeed+=2;
-                baseSlowness+=1;
+                updateSpeed+=3;
+                baseSlowness+=2;
                 score = 0;
                 quit = true;
             }
@@ -275,6 +277,7 @@ int main(int argc, char *argv[])
 
         }
 
+        explosions.reset();
     }
 
 	//Deallocate surface
