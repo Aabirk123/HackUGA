@@ -6,19 +6,19 @@ class Boss
 protected:
     int frames;
     SDL_Surface* sprite;
-    int color;
+    int yGoal;
 public:
     int x;
     int y;
-    int yGoal;
+    int color;
     //Parametrized Constructor
     Boss(int x, int y, int yGoal) {
         this->x = x;
         this->y = y;
         this->yGoal = yGoal;
-        color = (rand()%4)+1;
-        std::string text = "boss" + std::to_string(color) + ".bmp";
-        sprite = SDL_LoadBMP( text );
+        color = (rand()%4);
+        std::string text = "boss" + std::to_string(color+1) + ".bmp";
+        sprite = SDL_LoadBMP( text.c_str() );
     }
 
     //Parametrized Constructor
@@ -31,9 +31,11 @@ public:
         if(frames %3 == 0)
             if(y < yGoal)
                 y += 1;
-        color = (rand()%4)+1;
-        std::string text = "boss" + std::to_string(color) + ".bmp";
-        sprite = SDL_LoadBMP( text );
+        if(frames % 600 == 0) {
+            color = (rand()%4);
+            std::string text = "boss" + std::to_string(color+1) + ".bmp";
+            sprite = SDL_LoadBMP( text.c_str() );
+        }
     }
 
     void Paste(SDL_Surface* ScreenSurface) {
