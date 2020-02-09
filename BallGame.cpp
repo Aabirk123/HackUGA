@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                            SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
+                            SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
     TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 350, i+1);
     }
+    int speedIncrease = 2;
     int updateSpeed = 1;
     int baseSlowness = 2;
     int lvlDifficulty = 3;
@@ -63,6 +64,9 @@ int main(int argc, char *argv[])
         int timeSlow = baseSlowness;
         int xVelo = 0;
         int score = 0;
+        std::string scoreStr = "Score: " + std::to_string(score);
+        scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
+
         int frameCount = 0; int powerCount = 0;
         int currentFrame = 0;
         quit = false;
@@ -92,11 +96,11 @@ int main(int argc, char *argv[])
                         break;
 
                         case SDLK_LEFT:
-                            xVelo = -2;
+                            xVelo = -speedIncrease;
                         break;
 
                         case SDLK_RIGHT:
-                            xVelo = 2;
+                            xVelo = speedIncrease;
                         break;
                     }
                 } else if( e.type == SDL_KEYUP) {
@@ -240,6 +244,7 @@ int main(int argc, char *argv[])
                     if(collisions ==  3)
                     {
                         // game over screen
+                        quit = true;
                     }
                 }
             } else {
@@ -257,6 +262,7 @@ int main(int argc, char *argv[])
             SDL_Delay(5);
             //updates difficulty 
             if(score >= 200) {
+                speedIncrease++;
                 lvlDifficulty+=1;
                 updateSpeed+=3;
                 baseSlowness+=2;
@@ -267,14 +273,49 @@ int main(int argc, char *argv[])
 
         if(collisions < 3 && playing) {
             SDL_Surface * cleared = TTF_RenderText_Solid(font, "Level Cleared!", color);
-            SDL_Rect dest = {SCREEN_WIDTH/2-175/2, SCREEN_HEIGHT/2};
+            SDL_Rect dest = {SCREEN_WIDTH/2-140/2, SCREEN_HEIGHT/2};
             SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5000);
         }
         if(collisions >= 3) {
             // Game over screen
+            SDL_Color gameOverColor = {255, 180, 180};
+            SDL_Surface * gameOver = TTF_RenderText_Solid(font, "GAME OVER", gameOverColor);
+            SDL_Rect destA = {SCREEN_WIDTH/2-110/2, SCREEN_HEIGHT/2-30};
 
+            SDL_Surface * gameOverRestart = TTF_RenderText_Solid(font, "Press enter to restart", color);
+            SDL_Rect destB = {SCREEN_WIDTH/2-200/2, SCREEN_HEIGHT/2};
+
+            quit = false;
+            while(!quit) {
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        quit = true;
+                        playing = false;
+                    } //User presses a key
+                    if( e.type == SDL_KEYDOWN )
+                    {
+                        switch( e.key.keysym.sym )
+                        {
+                            case SDLK_ESCAPE:
+                                quit = true;
+                                playing = false;
+                            break;
+                            case SDLK_RETURN:
+                                quit = true;
+                            break;
+                        }
+                    }
+                }
+                SDL_BlitSurface( gameOver, NULL, ScreenSurface, &destA );
+                SDL_BlitSurface( gameOverRestart, NULL, ScreenSurface, &destB );
+                SDL_UpdateWindowSurface( Window );
+                SDL_Delay(5);
+            }
         }
 
         explosions.reset();
