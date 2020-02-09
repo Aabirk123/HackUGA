@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
         crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
     }
     int updateSpeed = 1;
+    int baseSlowness = 2;
     int lvlDifficulty = 3;
 
     SDL_Color color = {255, 255, 255};
@@ -57,18 +58,22 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower;
 
     while(playing) {
+        std::cout << "Starting" << std::endl;
         int combo = 0;
         int collisions = 0;
-        int timeSlow =2;
+        int timeSlow = baseSlowness;
         int xVelo = 0;
         int score = 0;
-        int frameCount = 0; int powerCount;
+        int frameCount = 0; int powerCount = 0;
         int currentFrame = 0;
+        quit = false;
 
         for(int i = 0; i <= lvlDifficulty; i++)
         {
             testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
         }
+
+        std::cout << "Finished init" << std::endl;
 
         while( !quit )
         {
@@ -154,7 +159,6 @@ int main(int argc, char *argv[])
                 for(int i = 0; i< 4; i++ )
                 {
                     if(testPower -> touchingBox(crater[i]->x, crater[i]->y, 100, 100)) {
-                        std::cout << "Collided" << std::endl;
                         collided = true;
                     }
                 }
@@ -188,9 +192,9 @@ int main(int argc, char *argv[])
                     testPower = NULL;
                 }
             }
-            if(currentFrame % 1000 == 0 && timeSlow != 2)
+            if(currentFrame % 1000 == 0 && timeSlow != baseSlowness)
             {
-                timeSlow = 2;
+                timeSlow = baseSlowness;
             }
 
         
@@ -255,20 +259,24 @@ int main(int argc, char *argv[])
             SDL_Delay(5);
             //updates difficulty 
             if(score % 200 == 0 && score > 0) {
-                lvlDifficulty+=2;
-                updateSpeed++;
+                lvlDifficulty+=1;
+                updateSpeed+=2;
+                baseSlowness+=1;
                 score = 0;
                 quit = true;
             }
         }
 
-        if(collisions < 3) {
-            SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Level Cleared!", color);
+        if(collisions < 3 && playing) {
+            SDL_Surface * cleared = TTF_RenderText_Solid(font, "Level Cleared!", color);
+            SDL_Rect dest = {SCREEN_WIDTH/2-175/2, SCREEN_HEIGHT/2};
+            SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5000);
-
-        } else {
+        }
+        if(collisions >= 3) {
             // Game over screen
+
         }
 
     }

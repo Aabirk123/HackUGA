@@ -13,15 +13,15 @@ public:
     ExplosionManager() {
         sprite = SDL_LoadBMP( "explosion.bmp" );
         num = 0;
-        x = new int[20];
-        y = new int[20];
-        framesToDestroy = new int[20];
+        x = new int[30];
+        y = new int[30];
+        framesToDestroy = new int[30];
     }
     //Parametrized Constructor
     void add(int x, int y, int curFrame) {
         this->x[num] = x-2;
         this->y[num] = y-2;
-        framesToDestroy[num] = curFrame+100;
+        framesToDestroy[num] = curFrame+50;
         num++;
     }
 
