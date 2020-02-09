@@ -12,7 +12,7 @@
 #include "ExplosionManager.h"
 
 const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_HEIGHT = 480;
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     SDL_Window *Window = SDL_CreateWindow("BallGame",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
-                            SDL_WINDOW_OPENGL);// | SDL_WINDOW_FULLSCREEN);
+                            SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
     SDL_Surface* ScreenSurface = SDL_GetWindowSurface( Window );
     TTF_Font * font = TTF_OpenFont("arial.ttf", 25);
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
     Crater* crater[4];
     for(int i=0; i<4; i++) {
-        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 420, i+1);
+        crater[i] = new Crater(i*(SCREEN_WIDTH+100)/4, 350, i+1);
     }
     int updateSpeed = 1;
     int baseSlowness = 2;
@@ -58,7 +58,6 @@ int main(int argc, char *argv[])
     std::unique_ptr<powerUp> testPower;
 
     while(playing) {
-        std::cout << "Starting" << std::endl;
         int combo = 0;
         int collisions = 0;
         int timeSlow = baseSlowness;
@@ -72,8 +71,6 @@ int main(int argc, char *argv[])
         {
             testBall[i] = std::make_unique<Ball>(100+(rand()%9)*50, -10-(rand()%9)*50, (rand()%4)+1);
         }
-
-        std::cout << "Finished init" << std::endl;
 
         while( !quit )
         {
@@ -121,7 +118,6 @@ int main(int argc, char *argv[])
             SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
             // Earth SHAKING aftre being hit
             if(earthX != 0 && frameCount %2 == 0) {
-                std::cout << earthX << std::endl;
                 if(earthX > 0)
                     earthX = -earthX+1;
                 else if(earthX < 0) {
@@ -258,7 +254,7 @@ int main(int argc, char *argv[])
             SDL_UpdateWindowSurface( Window );
             SDL_Delay(5);
             //updates difficulty 
-            if(score % 200 == 0 && score > 0) {
+            if(score >= 200) {
                 lvlDifficulty+=1;
                 updateSpeed+=2;
                 baseSlowness+=1;
