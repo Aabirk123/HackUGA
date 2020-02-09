@@ -10,6 +10,7 @@
 #include "crater.h"
 #include "powerup.h"
 #include "ExplosionManager.h"
+#include "boss.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -41,9 +42,11 @@ int main(int argc, char *argv[])
     // Import image
     SDL_Surface* background = SDL_LoadBMP( "space.bmp" );
     SDL_Surface* Earth = SDL_LoadBMP("earth.bmp");
-    SDL_Surface* Lose = SDL_LoadBMP("lose.bmp");
+    SDL_Surface* life = SDL_LoadBMP("life.bmp");
+    SDL_Surface* byte = SDL_LoadBMP( "byte.bmp" );
     //SDL_Rect earthPos = {0, SCREEN_HEIGHT-90};
     int earthX = 0;
+    int spaceX = 0;
 
     //Main loop flag
     bool quit = false;
@@ -59,7 +62,7 @@ int main(int argc, char *argv[])
     int updateSpeed = 1;
     int speedIncrease = 2;
     int baseSlowness = 2;
-    int level = 0;
+    int level = 4;
     int lvlDifficulty = 3;
     int minDist = 50;
 
@@ -69,6 +72,7 @@ int main(int argc, char *argv[])
     ExplosionManager explosions;
     std::unique_ptr<Ball> testBall[100];
     std::unique_ptr<powerUp> testPower;
+    std::unique_ptr<Boss> boss;
 
     while(playing) {
         int combo = 0;
@@ -89,6 +93,11 @@ int main(int argc, char *argv[])
         for(int i = 1; i <= lvlDifficulty; i++)
         {
             makeNewBall(testBall, i, minDist);
+        }
+        
+        // Boss level stuff
+        if(level == 4) {
+            boss = std::make_unique<Boss>(SCREEN_WIDTH/2-50, -200, SCREEN_HEIGHT/3);
         }
 
         while( !quit )
@@ -135,6 +144,7 @@ int main(int argc, char *argv[])
                                     score+=10;
                                 }
                             }
+                            spaceX = 20;
                         }
                         break;
                     }
@@ -158,23 +168,31 @@ int main(int argc, char *argv[])
                 }
             }
 
-            SDL_BlitSurface( background, NULL, ScreenSurface, NULL );
+            if(spaceX != 0 && frameCount % 10 == 0) {
+                if(spaceX > 0)
+                    spaceX = -spaceX+1;
+                else if(spaceX < 0) {
+                    spaceX = -spaceX-1;
+                }
+            }
+            SDL_Rect spacePos = {spaceX, 0};
+            SDL_BlitSurface( background, NULL, ScreenSurface, &spacePos );
             // Earth SHAKING aftre being hit
-            if(earthX != 0 && frameCount %2 == 0) {
+            if(earthX != 0 && frameCount %  2 == 0) {
                 if(earthX > 0)
                     earthX = -earthX+1;
                 else if(earthX < 0) {
                     earthX = -earthX-1;
                 }
             }
-            SDL_Rect earthPos = {earthX, SCREEN_HEIGHT-80};
+            SDL_Rect earthPos = {earthX+spaceX, SCREEN_HEIGHT-70};
             SDL_BlitSurface( Earth, NULL, ScreenSurface, &earthPos);
             // Moving planets
             for(int i = 0; i < 4; i++)
             {
                 crater[i]->Update(xVelo, 0);
                 crater[i]->CheckOffscreen(SCREEN_WIDTH);
-                crater[i]->Paste(ScreenSurface);
+                crater[i]->Paste(ScreenSurface, spaceX);
             }
 
             // Increases amount of lives
@@ -295,14 +313,39 @@ int main(int argc, char *argv[])
                 }
             }
             explosions.Update(frameCount);
-            explosions.PasteAll(ScreenSurface);
+            explosions.PasteAll(ScreenSurface, spaceX);
+            boss->Update();
+            boss->Paste(ScreenSurface);
+            
+            // Byte
+            SDL_Rect byteClip = {1,1,56,71};
+            if(score >= 200+level*100) {
+                byteClip.x = 117;
+            } else if(spaceX != 0) {
+                byteClip.x = 175;
+            } else if(earthX != 0) {
+                byteClip.x = 233;
+            } else if(frameCount % 1000 < 800) {
+                byteClip.x = 1;
+            } else {
+                byteClip.x = 59;
+            }
+            SDL_Rect bytePos = {SCREEN_WIDTH/2-33+earthX+spaceX, SCREEN_HEIGHT-95};
+            SDL_BlitSurface( byte, &byteClip, ScreenSurface, &bytePos);
 
+            // Lives
+            for(int i=collisions; i<3; i++) {
+                SDL_Rect dest = {10+(i-collisions)*60, SCREEN_HEIGHT-60};
+                SDL_BlitSurface( life, NULL, ScreenSurface, &dest );
+            }
+            // Score text
             std::string scoreStr = "Score: " + std::to_string(score) + "/" + std::to_string(200+level*100);
             scoreSurface = TTF_RenderText_Solid(font, scoreStr.c_str(), color);
             SDL_BlitSurface( scoreSurface, NULL, ScreenSurface, NULL );
+            // Combo text
             if(combo >= 10 )
             {
-                SDL_Surface * cleared = TTF_RenderText_Solid(font, "Power up available!", color);
+                SDL_Surface * cleared = TTF_RenderText_Solid(font, "Giga-Byte Ready!", color);
                 SDL_Rect dest = {SCREEN_WIDTH-240, 0};
                 SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
                 SDL_UpdateWindowSurface( Window );
@@ -331,7 +374,15 @@ int main(int argc, char *argv[])
                 score = 0;
                 quit = true;
             }
-        }
+
+            // Boss level stuff
+            if(level == 4) {
+                if(frameCount % 700 == 0 && lvlDifficulty < 20) {
+                    lvlDifficulty++;
+                    testBall[lvlDifficulty] = std::make_unique<Ball>(boss->x-50, boss->y, boss->color);
+                }
+            }
+        } // End regular game loop
 
         if(collisions < 3 && playing) {
             SDL_Surface * cleared = TTF_RenderText_Solid(font, "Level Cleared!", color);
