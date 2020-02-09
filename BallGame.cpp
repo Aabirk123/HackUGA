@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     // Setup the screen
-    SDL_Window *Window = SDL_CreateWindow("Space-Byte",
+    SDL_Window *Window = SDL_CreateWindow("SPACE-BYTE",
                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                             SCREEN_WIDTH, SCREEN_HEIGHT,
                             SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN);
