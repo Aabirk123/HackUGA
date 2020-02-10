@@ -68,6 +68,9 @@ int main(int argc, char *argv[])
 
     SDL_Color color = {255, 255, 255};
     SDL_Surface * scoreSurface = TTF_RenderText_Solid(font, "Score: 0", color);
+    SDL_Surface * ready = TTF_RenderText_Solid(font, "Giga-Byte Ready!", color);
+    SDL_Surface * pressButton = TTF_RenderText_Solid(font, "Press Any Button!", color);
+    SDL_Surface * comboSurface;
 
     ExplosionManager explosions;
     std::unique_ptr<Ball> testBall[100];
@@ -115,6 +118,7 @@ int main(int argc, char *argv[])
                     switch( e.key.keysym.sym )
                     {
                         case SDLK_ESCAPE:
+                            printf("In-game Escape\n");
                             quit = true;
                             playing = false;
                         break;
@@ -131,7 +135,7 @@ int main(int argc, char *argv[])
                             speedBoost = 2;
                         break;
 
-                        case SDLK_SPACE:
+                        default:
                         if(combo >= 10 )
                         {
                             combo = 0;
@@ -298,12 +302,8 @@ int main(int argc, char *argv[])
                     {
                         // game over screen
                         quit = true;
-                        speedIncrease = 2;
-                        baseSlowness = 2;
-                        level = 0;
-                        lvlDifficulty = 3;
-                        minDist = 50;
-                        updateSpeed = 1;
+                        spaceX = 0;
+                        earthX = 0;
                     }
                 }
             } else {
@@ -368,19 +368,17 @@ int main(int argc, char *argv[])
             // Combo text
             if(combo >= 10 )
             {
-                SDL_Surface * cleared = TTF_RenderText_Solid(font, "Giga-Byte Ready!", color);
                 SDL_Rect dest = {SCREEN_WIDTH-200, 0};
-                SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+                SDL_BlitSurface( ready, NULL, ScreenSurface, &dest );
 
-                SDL_Surface * space = TTF_RenderText_Solid(font, "Press Spacebar!", color);
                 SDL_Rect dest2 = {SCREEN_WIDTH-195, 25};
-                SDL_BlitSurface( space, NULL, ScreenSurface, &dest2 );
+                SDL_BlitSurface( pressButton, NULL, ScreenSurface, &dest2 );
                 SDL_UpdateWindowSurface( Window );
             } else if(combo > 1) {
                 std::string comboMessage = std::to_string(combo) + "x combo!";
-                SDL_Surface * cleared = TTF_RenderText_Solid(font, comboMessage.c_str(), color);
+                comboSurface = TTF_RenderText_Solid(font, comboMessage.c_str(), color);
                 SDL_Rect dest = {SCREEN_WIDTH-170, 0};
-                SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+                SDL_BlitSurface( comboSurface, NULL, ScreenSurface, &dest );
                 SDL_UpdateWindowSurface( Window );
             }
             //Update the surface
@@ -397,6 +395,9 @@ int main(int argc, char *argv[])
                 if(lvlDifficulty % 3 == 0) {
                     updateSpeed+=1;
                 }
+                if(level == 4) {
+                    updateSpeed--;
+                }
                 //baseSlowness+=1;
                 score = 0;
                 quit = true;
@@ -406,18 +407,45 @@ int main(int argc, char *argv[])
         if(level == 5) {
             SDL_Surface* deadBoss = SDL_LoadBMP( "bossexplosion.bmp" );
             SDL_Rect ded = {boss->x, boss->y};
-            SDL_BlitSurface( deadBoss, NULL, ScreenSurface, &ded );
-
             SDL_Surface * cleared = TTF_RenderText_Solid(font, "You saved the earth!", color);
             SDL_Rect dest = {SCREEN_WIDTH/2-150/2, SCREEN_HEIGHT/2};
-            SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
-
             SDL_Surface * thanks = TTF_RenderText_Solid(font, "Thank you for playing!", color);
             SDL_Rect destB = {SCREEN_WIDTH/2-190/2, SCREEN_HEIGHT/2+20};
-            SDL_BlitSurface( thanks, NULL, ScreenSurface, &destB );
 
-            SDL_UpdateWindowSurface( Window );
-            SDL_Delay(5000);
+            quit = false;
+            while(!quit) {
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    //User requests quit
+                    if( e.type == SDL_QUIT )
+                    {
+                        quit = true;
+                        playing = false;
+                    } //User presses a key
+                    if( e.type == SDL_KEYDOWN )
+                    {
+                        switch( e.key.keysym.sym )
+                        {
+                            case SDLK_ESCAPE:
+                                quit = true;
+                                playing = false;
+                            break;
+                            case SDLK_RETURN:
+                                playing = false;
+                                quit = true;
+                            break;
+                            default:
+                                quit = true;
+                            break;
+                        }
+                    }
+                }
+                SDL_BlitSurface( deadBoss, NULL, ScreenSurface, &ded );
+                SDL_BlitSurface( cleared, NULL, ScreenSurface, &dest );
+                SDL_BlitSurface( thanks, NULL, ScreenSurface, &destB );
+                SDL_UpdateWindowSurface( Window );
+                SDL_Delay(50);
+            }
             boss = NULL;
         }
         else if(collisions < 3 && playing) {
@@ -434,7 +462,7 @@ int main(int argc, char *argv[])
             SDL_Surface * gameOver = TTF_RenderText_Solid(font, "GAME OVER", gameOverColor);
             SDL_Rect destA = {SCREEN_WIDTH/2-110/2, SCREEN_HEIGHT/2-30};
 
-            SDL_Surface * gameOverRestart = TTF_RenderText_Solid(font, "Press enter to restart", color);
+            SDL_Surface * gameOverRestart = TTF_RenderText_Solid(font, "Press any key to restart", color);
             SDL_Rect destB = {SCREEN_WIDTH/2-200/2, SCREEN_HEIGHT/2};
 
             quit = false;
@@ -456,6 +484,10 @@ int main(int argc, char *argv[])
                                 playing = false;
                             break;
                             case SDLK_RETURN:
+                                playing = false;
+                                quit = true;
+                            break;
+                            default:
                                 quit = true;
                             break;
                         }
@@ -464,7 +496,16 @@ int main(int argc, char *argv[])
                 SDL_BlitSurface( gameOver, NULL, ScreenSurface, &destA );
                 SDL_BlitSurface( gameOverRestart, NULL, ScreenSurface, &destB );
                 SDL_UpdateWindowSurface( Window );
-                SDL_Delay(5);
+                SDL_Delay(50);
+            }
+            // Start game over
+            if(collisions >= 3 || level == 5) {
+                speedIncrease = 2;
+                baseSlowness = 2;
+                level = 0;
+                lvlDifficulty = 3;
+                minDist = 50;
+                updateSpeed = 1;
             }
         }
 
@@ -480,6 +521,14 @@ int main(int argc, char *argv[])
     for(int i=0; i<4; i++) {
         delete(crater[i]);
     }
+    SDL_FreeSurface(ScreenSurface);
+    SDL_FreeSurface(ready);
+    SDL_FreeSurface(pressButton);
+    SDL_FreeSurface(background);
+    SDL_FreeSurface(Earth);
+    SDL_FreeSurface(life);
+    SDL_FreeSurface(byte);
+
     SDL_DestroyWindow( Window );
     TTF_CloseFont(font);
     TTF_Quit();
