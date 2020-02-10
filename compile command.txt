@@ -1,1 +1,1 @@
-g++ -g -m32 -IC:\MinGW\include\SDL2 -LC:\MinGW\lib BallGame.cpp ball.h crater.h powerup.h ExplosionManager.h -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+g++ -g -m32 -IC:\MinGW\include\SDL2 -LC:\MinGW\lib BallGame.cpp src/ball.h src/crater.h src/powerup.h src/ExplosionManager.h -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
